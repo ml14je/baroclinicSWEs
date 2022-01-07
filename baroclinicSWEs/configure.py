@@ -17,13 +17,13 @@ def main():
     parser.add_argument(
         '--order',
         type=int,
-        default=5,
+        default=2,
         help='Order of local polynomial test function in DG-FEM numerics.')
     
     parser.add_argument(
         '--domain',
         type=float,
-        default=.05,
+        default=.1,
         help='Domain lengthscale')
 
     parser.add_argument(

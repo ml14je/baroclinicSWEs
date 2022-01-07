@@ -287,7 +287,6 @@ def main(bbox, param, order=3, h_min=1e-3, h_max=5e-3,
                             verbose=True, L_zoom =.05, zoom=zoom_
                         )
 
-
 if __name__ == "__main__":
     h_min, h_max = 5e-4, 5e-2
     λ = 0.03
