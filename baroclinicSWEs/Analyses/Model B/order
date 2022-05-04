@@ -1,0 +1,22 @@
+# Run in current working directory
+#$ -cwd
+
+# Export variables from head node to the computing nodes
+#$ -V
+
+# Send email at beginning and end
+#$ -m be
+
+# Set up a maximum runtime of x hours
+#$ -l h_rt=01:00:00
+
+# Use 1 core
+#$ -pe smp 1
+
+# Using high-memory nodes
+##$ -l node_type=40core-768G
+
+#Request some memory per core
+#$ -l h_vmem=180G
+
+python parameter_runs.py

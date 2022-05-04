@@ -475,7 +475,7 @@ rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
     
     if file_exist(sln_dir):
         with open(sln_dir, "rb") as inp:
-            global_solutions = dill.load(inp)
+            baroclinic_solutions = dill.load(inp)
             
     else:
         from DGFEM.dgfem import FEM
@@ -551,19 +551,20 @@ rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
             (x, y), irregular_sols[i], fill_value=0
             ) for i in range(3)]
         
-        class global_solutions:
+        class baroclinic_solutions:
             u = lambda x, y, t : \
             solutions[0](x, y) * np.exp(-1j * ω * t)
             v = lambda x, y, t : \
             solutions[1](x, y) * np.exp(-1j * ω * t)
             p = lambda x, y, t : \
             solutions[2](x, y) * np.exp(-1j * ω * t)
+            swes = baroclinic_swes
             
         with open(sln_dir, "wb") as outp:
             if verbose:
                 print("Saving Barotropic solution function")
                 
-            dill.dump(global_solutions, outp)
+            dill.dump(baroclinic_solutions, outp)
             
         
 
@@ -571,35 +572,26 @@ rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
     
     
     if animate:
-        Nx, Ny = 501, 501
+        Nx, Ny = 1000, 1000
+        
         bbox_temp = np.array(param.bboxes[1]) * 1e3 /param.L_R
+        # bbox_temp[0] = - bbox_temp[3]/2
+        # bbox_temp[1] = + bbox_temp[3]/2
+        bbox_temp[2] = 0 # y0 = 0 (coastline)
         x0, xN, y0, yN = bbox_temp
+        
         xg, yg = np.linspace(x0, xN, Nx+1), np.linspace(y0, yN, Ny+1)
         Xg, Yg = np.meshgrid(xg, yg)
-        
-        from baroclinicSWEs.modal_decomposition import MultiLayerModes
-        bathymetry = param.H_D * bathymetry_func(Xg, Yg)
-        modes = MultiLayerModes(bathymetry,
-                                layer_thicknesses=param.H_pyc,
-                                layer_densities=param.ρ_min,
-                                max_density=param.ρ_max,
-                                g=param.g,
-                                normalisation="Anti-Symmetric")
-        wave_speed_sqrd_functions_apprx, \
-            modal_interaction_coefficients_apprx, \
-                approx_normalisations, \
-                    vertical_structure_functions_apprx = \
-                        modes.two_layer_approximations()
-        
-        Z0_func, Z1_func = approx_normalisations #normalisations
-        Z1 = Z1_func(bathymetry)
 
-        LR = param.L_R * 1e-3
-        
-        u = global_solutions.u(Xg, Yg, 0)
-        v = global_solutions.v(Xg, Yg, 0)
-        p = global_solutions.p(Xg, Yg, 0)
-        
+        bathymetry = baroclinic_solutions.swes.h_func(Xg, Yg)
+        Z1 = baroclinic_solutions.swes.Z1_func(bathymetry)
+        # print(self.barotropic_sols)
+        u = baroclinic_solutions.u(Xg, Yg, 0)
+        v = baroclinic_solutions.v(Xg, Yg, 0)
+        p = baroclinic_solutions.p(Xg, Yg, 0)
+        LR = 1e-3 * param.L_R
+
+
         from baroclinicSWEs.Baroclinic import animate_solutions
         animate_solutions(np.array([param.c * u * Z1,
                                     param.c * v * Z1,
@@ -615,11 +607,8 @@ rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m",
                           folder_dir="Baroclinic/Baroclinic Animation",
                           mode=1
                           )
-        
-    raise ValueError
-    
 
-    return global_solutions
+    return baroclinic_solutions
             
 def parameter_run(
     param,
@@ -716,7 +705,7 @@ if __name__ == "__main__":
         param.canyon_width,
         alpha_values,
         beta_values,
-        order=(3, 4),
+        order=(1, 1),
         numerical_flux="Central", #,"Lax-Friedrichs"
         goal='SOLUTIONS' #Either plot solutions, plot perturbations or plot norms
     )
