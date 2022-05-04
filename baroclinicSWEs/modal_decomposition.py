@@ -13,7 +13,7 @@ from scipy.sparse import csr_matrix as sp
 
 class MultiLayerModes(object):
     def __init__(self, bathymetry, layer_thicknesses, layer_densities,
-                 max_density=1040, max_depth=None, g=9.81,
+                 max_density=1031.084, max_depth=None, g=9.81,
                  normalisation="Constant"):
 
         self.max_depth = np.max(bathymetry) if max_depth is None \
@@ -314,7 +314,7 @@ class MultiLayerModes(object):
                 ]
             self.modal_interaction_coefficients_apprx = [
                 [np.vectorize(lambda h : 0),
-                 np.vectorize(lambda h : -(self.reduced_gravity/self.g) * \
+                 np.vectorize(lambda h : -np.sqrt(self.reduced_gravity/self.g) * \
                                (d)/(h**2))],
                 [np.vectorize(lambda h : np.sqrt(self.reduced_gravity/self.g) * \
                               (d)/(h**2)),
@@ -383,7 +383,7 @@ def test(show_topography=False):
         pt.show()
     
     layer_thicknesses = np.array([100, 50, 20])
-    layer_densities = np.array([1025, 1030, 1035])    
+    layer_densities = np.array([1028, 1030, 1035])    
     multi_layer_modes = MultiLayerModes(bathymetry, layer_thicknesses[0],
                                         layer_densities[0],
                                         normalisation='Anti-Symmetric')

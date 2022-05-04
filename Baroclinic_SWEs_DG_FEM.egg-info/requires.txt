@@ -6,3 +6,6 @@ sympy
 bottleneck
 cython
 numba
+dill
+ppp
+oceanmesh

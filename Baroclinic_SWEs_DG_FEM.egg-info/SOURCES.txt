@@ -1,3 +1,4 @@
+README.md
 setup.py
 Baroclinic_SWEs_DG_FEM.egg-info/PKG-INFO
 Baroclinic_SWEs_DG_FEM.egg-info/SOURCES.txt
@@ -5,11 +6,7 @@ Baroclinic_SWEs_DG_FEM.egg-info/dependency_links.txt
 Baroclinic_SWEs_DG_FEM.egg-info/not-zip-safe
 Baroclinic_SWEs_DG_FEM.egg-info/requires.txt
 Baroclinic_SWEs_DG_FEM.egg-info/top_level.txt
-baroclinicSWEs/Barotropic.py
+baroclinicSWEs/Baroclinic.py
 baroclinicSWEs/SWEs.py
-baroclinicSWEs/canyon_width_analysis.py
-baroclinicSWEs/canyon_width_analysis2.py
-baroclinicSWEs/make_canyon_meshes.py
-baroclinicSWEs/process_slns.py
-baroclinicSWEs/topography.py
-baroclinicSWEs/uniform_box_mesh.py
+baroclinicSWEs/__init__.py
+baroclinicSWEs/modal_decomposition.py

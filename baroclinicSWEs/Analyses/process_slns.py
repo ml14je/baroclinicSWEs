@@ -158,11 +158,8 @@ def gridded_data(swes, sols, bbox_plot, Nx=1001, Ny=1001):
     dy = swes.param.L_R * (bbox_plot[3]-bbox_plot[2])/Ny
 
     for val in [u, v, p, swes.h]:
-        val_r = griddata((x, y), val.real,
-                               (X, Y), method="cubic")
-        val_i = griddata((x, y), val.imag,
-                               (X, Y), method="cubic")
-        val = val_r + 1j * val_i
+        val = griddata((x, y), val,
+                       (X, Y), method="cubic")
         gridded_vals.append(val)
 
     from topography import grad_function

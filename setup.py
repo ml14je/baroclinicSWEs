@@ -19,7 +19,8 @@ setup(name='Baroclinic SWEs DG-FEM',
       license='None',
       install_requires=[
           'numpy', 'scipy', 'pandas', 'matplotlib',
-          'sympy', 'bottleneck', 'cython', 'numba',
+          'sympy', 'bottleneck', 'cython', 'numba', 'dill', 'ppp',
+          'oceanmesh'
 #          'ChannelWaves1D', 'ppp', 'oceanmesh'
       ],
       packages=['baroclinicSWEs'],

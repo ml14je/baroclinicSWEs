@@ -18,36 +18,38 @@ class solver(object):
         param,
         fem,
         barotropic_sols,
-        barotropic_fem,
-        barotropic_dir,
+        barotropic_name,
         h_func,
-        upper_layer_thickness=100,
-        upper_layer_density=1025,
-        lower_layer_density=1050,
         periods=2,
         flux_scheme="central",
         boundary_conditions="Solid Wall",
-        data_dir='Baroclinic Response',
+        data_dir='Baroclinic',
         rotation=True,
         θ=1,
         wave_frequency=1.4,
         rayleigh_friction=0,
-        sponge_function=np.vectorize(lambda x, y : 0)
+        sponge_function=np.vectorize(lambda x, y : 0),
+        sponge_padding=(2.25e-1, 3e-1)
     ):
         from scipy.sparse import diags
-
         
         self.param = param
         self.fem = fem
-        self.barotropic_fem = barotropic_fem
+        self.order = fem.N
         self.barotropic_sols = barotropic_sols
-        self.barotropic_dir = barotropic_dir
+        self.barotropic_dir = barotropic_name
+        self.baroclinic_dir = barotropic_name + \
+            f"_rho1={param.ρ_min:.0f}_rho2={param.ρ_max:.0f}_\
+rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
+        
         self.rotation = rotation
         self.ω = wave_frequency
         self.sponge_function = sponge_function
         self.rayleigh_friction = rayleigh_friction
+
         self.X, self.Y = self.fem.x.flatten("F"), self.fem.y.flatten("F")
-        self.data_dir = data_dir
+        self.data_dir = f"{data_dir}/Solutions"
+        self.sponge_padding = sponge_padding
         
         from ppp.File_Management import dir_assurer
         dir_assurer(self.data_dir)
@@ -66,7 +68,8 @@ class solver(object):
         ]:
             raise ValueError("Invalid Flux scheme")
 
-        if self.boundary_conditions not in ["SOLID WALL", "OPEN FLOW", "MOVING WALL", "SPECIFIED"]:
+        if self.boundary_conditions not in ["SOLID WALL", "OPEN FLOW",
+                                            "MOVING WALL", "SPECIFIED"]:
             raise ValueError("Invalid Boundary Condition")
 
         else:
@@ -89,14 +92,15 @@ class solver(object):
         if h_func is None:
             self.h_func = np.vectorize(lambda X, Y: self.param.H_D)
         else:
-            self.h_func = h_func
+            self.h_func = lambda x, y : self.param.H_D * h_func(x, y)
 
         self.bathymetry = self.h_func(self.X, self.Y)
-        self.upper_layer_thickness = upper_layer_thickness
-        self.upper_layer_density = upper_layer_density
-        self.lower_layer_density = lower_layer_density
+        self.upper_layer_thickness = param.H_pyc
+        self.upper_layer_density = param.ρ_min
+        self.lower_layer_density = param.ρ_max
+        self.reference_density = param.ρ_ref
         
-        from modal_decomposition import MultiLayerModes
+        from baroclinicSWEs.modal_decomposition import MultiLayerModes
         self.modes = MultiLayerModes(self.bathymetry,
                                 layer_thicknesses=self.upper_layer_thickness,
                                 layer_densities=self.upper_layer_density,
@@ -118,8 +122,15 @@ class solver(object):
                 self.bathymetry
                 )
             
+        # Scalings
+        self.c_scale = self.param.c
+        self.p_scale = self.param.c**2
+        self.hor_scale, self.vert_scale = self.param.L_R, self.param.H_D
+            
         self.C0_sqrd = diags(self.barotropic_wavespeed_apprx/self.param.c**2)
         self.C1_sqrd = diags(self.baroclinic_wavespeed_apprx/self.param.c**2)
+        self.Z0_func, self.Z1_func = self.approx_normalisations #normalisations
+        self.Z0, self.Z1 = self.Z0_func(self.bathymetry), self.Z1_func(self.bathymetry)
         
         self.matrix_setup()
         self.baroclinic_friction()
@@ -189,7 +200,7 @@ class solver(object):
         
         y_old = np.concatenate([u, v, η], axis=0)[:, None]
         
-        from scipy.sparse.linalg import spsolve
+        # from scipy.sparse.linalg import spsolve
         y_vals = np.zeros((1001, 3*u.shape[0]), dtype=complex)
         t = 0
         for i in range(10000000):
@@ -384,130 +395,121 @@ class solver(object):
         # Inhomogeneous part from BCs
         self.U_D = self.LIFT @ self.Fscale @ self.Flux @ self.Un
 
-    def evp(self, k_vals=10):
-        from scipy.linalg import eig
-
-        vals, vecs = eig(1j * self.A.todense())
-        return vals, vecs.T
-
     def generate_barotropic_forcing(self,
                                     animate_barotropic_solutions=True,
                                     animate_barotropic_forcing=True):
         from ppp.File_Management import dir_assurer, file_exist
-        dir_assurer('Barotropic Forcing')
         x0, xN, y0, yN = self.param.bboxes[0]
         LR = self.param.L_R * 1e-3
-        file_dir = self.barotropic_dir + \
-            f'_domainwidth={LR*(xN-x0):.0f}x{LR*(yN-y0):.0f}'
-            
-        import matplotlib.pyplot as pt
-        Nx, Ny = 1000, 1000
-        x0, xN, y0, yN = self.param.bboxes[1]
-        dx = (xN - x0)/Nx
-        dy = (yN - y0)/Ny
-        xg, yg = np.linspace(x0, xN, Nx+1), np.linspace(y0, yN, Ny+1)
-        Xg, Yg = np.meshgrid(xg, yg)
-        pt.matshow(self.sponge_function(Xg, Yg), cmap="seismic",
-                   extent=self.param.bboxes[1], aspect="auto",
-                   vmin=-1, vmax=1)
-        pt.show()
+        file_dir = self.baroclinic_dir + \
+            f'_domainwidth={(xN-x0):.0f}kmx{(yN-y0):.0f}km_baroclinic_order={self.fem.N}'
+        dir_assurer('Baroclinic/Barotropic Forcing')
 
-        if not file_exist(f'Barotropic Forcing/{file_dir}.npz'):
-            u0, v0, p0 = np.split(self.barotropic_sols, 3, axis=0)
-            X0, Y0 = self.barotropic_fem.x.flatten('F'), self.barotropic_fem.y.flatten('F')
+        if not file_exist(f'Baroclinic/Barotropic Forcing/{file_dir}.npz'):
             X1, Y1 = self.X, self.Y
-            
             Nx, Ny = 1000, 1000
-            x0, xN, y0, yN = self.param.bboxes[1]
+            
+            bbox_temp = np.array(self.param.bboxes[1]) * 1e3 /self.param.L_R
+            # bbox_temp[0] = - bbox_temp[3]/2
+            # bbox_temp[1] = + bbox_temp[3]/2
+            bbox_temp[2] = 0 # y0 = 0 (coastline)
+            x0, xN, y0, yN = bbox_temp
             dx = (xN - x0)/Nx
             dy = (yN - y0)/Ny
+            
             xg, yg = np.linspace(x0, xN, Nx+1), np.linspace(y0, yN, Ny+1)
             Xg, Yg = np.meshgrid(xg, yg)
-    
-            bathymetry = self.h_func(Xg, Yg)
-            # bathymetry0 = self.h_func(X0, Y0)
-            # bathymetry1 = self.h_func(X1, Y1)
 
-            from barotropicSWEs.topography import grad_function
-            
-            from ppp.Plots import plot_setup
-            import matplotlib.pyplot as pt
+            bathymetry = self.h_func(Xg, Yg)
+
+            from barotropicSWEs.Configuration import topography
             from scipy.interpolate import griddata
-            
-            gridded_barotropic = []
-            for val in [u0, v0, p0]:
-                val_r = griddata((X0, Y0), val.real,
-                                        (Xg, Yg), method="cubic",
-                                        fill_value=0)
-                val_i = griddata((X0, Y0), val.imag,
-                                        (Xg, Yg), method="cubic",
-                                        fill_value=0)
-                val = val_r + 1j * val_i
-                gridded_barotropic.append(val)
-    
-            u, v, p = gridded_barotropic #Gridded solution non-dimensional system variables, and fluid depth
+                    
+
+            Z0 = self.Z0_func(bathymetry)
+            Z1 = self.Z1_func(bathymetry)
+            # print(self.barotropic_sols)
+            u = self.barotropic_sols.u(Xg, Yg, 0)/Z0
+            v = self.barotropic_sols.v(Xg, Yg, 0)/Z0
+            p = self.barotropic_sols.p(Xg, Yg, 0)/Z0
+            assert not np.all(u - v == 0), "Error in function uniqueness!"
             
             if animate_barotropic_solutions:
-                print(np.array(gridded_barotropic).shape,
-                      Xg.shape)
-                animate_solutions(np.array(gridded_barotropic), (Xg, Yg),
+                animate_solutions(np.array([self.c_scale * u * Z0,
+                                            self.c_scale * v * Z0,
+                                            1e-3 * self.reference_density * self.p_scale * p * Z0]),
+                                  (LR * Xg, LR * Yg),
                                   wave_frequency=1.4,
-                                  bbox=self.param.bboxes[0],
+                                  bbox=[LR * L for L in bbox_temp],
                                   padding=(0, 0),
                                   file_name=self.barotropic_dir,
-                                  folder_dir="Barotropic Animation",
+                                  folder_dir="Baroclinic/Barotropic Animation",
                                   mode=0
                                   )
-                
-            hx, hy = grad_function(bathymetry/self.param.H_D, dx, dy) # bathymetric gradients
+
+            hx, hy = topography.grad_function(bathymetry/self.vert_scale, dx, dy) # bathymetric gradients
     
-            L_R = self.param.L_R*1e-3
+            # L_R = self.param.L_R*1e-3
             T10 = self.modal_interaction_coefficients_apprx[1][0](bathymetry) * \
-                self.param.H_D
+                self.vert_scale
             c0_sqrd = self.wave_speed_sqrd_functions_apprx[0](bathymetry)/ \
-                (self.param.c**2)
+                (self.c_scale**2)
             
+            # self.plot_sponge_layer(self.sponge_padding)
+            R = self.sponge_function(.85*Xg, Yg)
+            domain_width = self.param.bboxes[1][1] - self.param.bboxes[1][0]
+            R[abs(Xg)>.9*domain_width/2] = 1 # ensures no forcing at edge of domain
+            u1_forcing = -T10 * p * hx * np.sqrt(1-R)
+            v1_forcing = -T10 * p * hy * np.sqrt(1-R)
+            p1_forcing = -T10 * c0_sqrd * (u * hx + v * hy) * np.sqrt(1-R)
+               
+            forcings = [
+                u1_forcing,
+                v1_forcing,
+                p1_forcing]
             
-            u1_forcing = -T10 * p * hx * (1 - self.sponge_function(Xg, Yg))
-            v1_forcing = -T10 * p * hy * (1 - self.sponge_function(Xg, Yg))
-            p1_forcing = -T10 * c0_sqrd * (u * hx + v * hy)  * \
-                (1 - self.sponge_function(Xg, Yg))
-            
-            forcings = [u1_forcing, v1_forcing, p1_forcing]
-            
+            forcings_dim = [
+                u1_forcing * self.p_scale * (1/self.hor_scale) * Z1,
+                v1_forcing * self.p_scale * (1/self.hor_scale) * Z1,
+                p1_forcing * (self.c_scale**3) * (1/self.hor_scale) * Z1]
+
             if animate_barotropic_forcing:
-                animate_solutions(np.array(forcings), (Xg, Yg),
+                labels = ['u', 'v', 'p']
+                units = ['m/s^2', 'm/s^2', 'Pa/s']
+                titles_ = [f'${labels[i]}_1$ Forcing [$\\rm{{{units[i]}}}$]' \
+                           for i in range(3)]
+                    
+                bbox_temp = np.array(self.param.bboxes[1]) * 1e3 /self.param.L_R
+
+                animate_solutions(np.array(forcings_dim), (Xg*LR, Yg*LR),
                                   wave_frequency=1.4,
-                                  bbox=self.param.bboxes[1],
+                                  bbox=[LR * L for L in bbox_temp],
                                   padding=(0, 0),
                                   file_name=f"{self.barotropic_dir}_forcing",
-                                  folder_dir="Barotropic Animation",
+                                  folder_dir="Baroclinic/Barotropic Animation",
+                                  titles=titles_,
                                   mode=1
                                   )
-            
-            
-            
+
             forcing_baroclinic_grid = []
             for forcing, title in zip(forcings,
                                       ['u_1', 'v_1', 'p_1']):
-                forcing_r = griddata((Xg.flatten(), Yg.flatten()),
-                                      forcing.real.flatten(),
-                                      (X1, Y1), method="cubic",
-                                      fill_value=0)
-                forcing_i = griddata((Xg.flatten(), Yg.flatten()),
-                                      forcing.imag.flatten(),
-                                      (X1, Y1), method="cubic",
-                                      fill_value=0)
-                forcing_baroclinic_grid.append(forcing_r + 1j * forcing_i)
+                forcing = griddata((Xg.flatten(), Yg.flatten()),
+                                   forcing.flatten(),
+                                   (X1, Y1), method="cubic",
+                                   fill_value=0)
+                forcing_baroclinic_grid.append(forcing)
     
             from ppp.Numpy_Data import save_arrays
             save_arrays(file_dir, tuple(forcing_baroclinic_grid),
-                        wd="Barotropic Forcing")
+                        wd="Baroclinic/Barotropic Forcing")
             
         else:
             from ppp.Numpy_Data import load_arrays
-            forcing_baroclinic_grid = load_arrays(file_dir,
-                                                  wd="Barotropic Forcing")
+            forcing_baroclinic_grid = load_arrays(
+                file_dir,
+                wd="Baroclinic/Barotropic Forcing"
+                )
 
         self.barotropic_forcing = np.concatenate(
             forcing_baroclinic_grid)[:, None]
@@ -517,138 +519,218 @@ class solver(object):
 
         R = self.sponge_function(self.X, self.Y) * self.rayleigh_friction
         self.R_friction = diags(R)
+        
+    def plot_sponge_layer(self, sponge_padding):
+        from ppp.Plots import plot_setup
+        from matplotlib import patches
+        import matplotlib.pyplot as pt
+        x_padding, y_padding = sponge_padding
+        x0, xN, y0, yN = self.param.bboxes[1]
+        x = np.linspace(x0, xN, 101)
+        y = np.linspace(y0, yN, 101)
+        X, Y = np.meshgrid(x, y)
+        r = .05
+        fig, ax = plot_setup('Along-shore (km)', 'Cross-shore (km)')
+        R = r * self.sponge_function(X, Y)
+        c = ax.matshow(
+            R,
+            cmap="seismic",
+            vmax=r,
+            vmin=-r,
+            extent=self.param.bboxes[1],
+            aspect="auto",
+            origin="lower",
+        )
+        rect = patches.Rectangle((x0+x_padding, y0+y_padding),
+                                  (xN-x0)-2*x_padding,
+                                  (yN-y0)-2*y_padding,
+                                  linewidth=3,
+                                  edgecolor='black', facecolor='none')
+        ax.add_patch(rect)
+        fig.colorbar(c, ax=ax)
+        pt.show()
 
-    def bvp(self, wave_frequency=None, verbose=False):
+    def boundary_value_problem(self, wave_frequency=None, verbose=True,
+                               save_solution=True):
         from scipy.sparse import identity, block_diag  # , diags
         from scipy.sparse.linalg import spsolve
         from scipy.sparse import csr_matrix as sp
         from ppp.File_Management import file_exist
-        
+
         ω = self.ω if wave_frequency is None else wave_frequency
         LR = 1e-3 * self.param.L_R
         xN, x0, yN, y0 = self.param.bboxes[1]
 
-        name = self.barotropic_dir + \
-            f'_domainwidth={LR*(xN-x0):.0f}x{LR*(yN-y0):.0f}_ω={ω:.2f}'
+        self.name = self.barotropic_dir + \
+            f'_domainwidth={(xN-x0):.0f}kmx{(yN-y0):.0f}km_order={self.order}'
         
-        if not file_exist(f'{self.data_dir}/{name}.npz'):
-            from ppp.Numpy_Data import save_arrays
-
-            
-            # r = self.r if rayleigh_friction is None else rayleigh_friction
-            # self.frames = frames
-            # self.time = np.linspace(0, 2 * np.pi / ω, self.frames + 1)
-    
+        if not file_exist(f'{self.data_dir}/{self.name}.npz'):
             N = self.fem.Np * self.fem.K
-            i, o = identity(N), sp((N, N))
+            i = identity(N)
     
             I = block_diag([i] * 3)
             assert ω is not None
             
-            sponge = block_diag(3 * [self.R_friction]) #Alternative: block_diag(2 * [self.R_friction] + o)
+            damping = block_diag(3 * [self.R_friction]) #Alternative: block_diag(2 * [self.R_friction] + o)
     
-            A = -self.A - 1j * ω * I + sponge
+            A = -self.A - 1j * ω * I + damping
             if verbose:
-                print("Solving BVP using spsolve")
-    
-            # import time
-            # for method in ["MMD_ATA", "MMD_AT_PLUS_A", "COLAMD", "NATURAL"]:
-            #     print(method)
-            #     start = time.perf_counter()
-            #     sols = spsolve(sp(A), self.barotropic_forcing, permc_spec=method)[:, None]
-            #     print(f'{method}: {time.perf_counter()-start:.2f} seconds')
+                print("Solving BVP using spsolve", flush=True)
                 
-            sols = spsolve(sp(A), self.barotropic_forcing)[:, None]
+            sols = spsolve(sp(A), self.barotropic_forcing)
             
-            x, y = np.round(self.X, 15), np.round(self.Y, 15)
-            Nx, Ny = 500, 500
-            xg, yg = np.linspace(self.param.bboxes[1][0], self.param.bboxes[1][1], Nx), \
-                np.linspace(self.param.bboxes[1][2], self.param.bboxes[1][3], Ny)
-            X, Y = np.meshgrid(xg, yg)
-            save_arrays(name, (sols, x, y, X, Y),
-                        folder_name=self.data_dir)
-            
-            
+            if save_solution:
+                from ppp.Numpy_Data import save_arrays
+                save_arrays(self.name, (sols,), folder_name=self.data_dir)
+
         else:
             from ppp.Numpy_Data import load_arrays
-            sols, x, y, X, Y = load_arrays(name, folder_name=self.data_dir)
-        
-        x_padding, y_padding = .125, .125
-        
+            if verbose:
+                print("Data exists", flush=True)
+            sols, = load_arrays(self.name, folder_name=self.data_dir)
+
+        return sols
+                    
+    def animate_baroclinic(self, file_name='', extent=None, Nx=200, Ny=200):
+        file_name_ = file_name if file_name else self.barotropic_dir
+        LR = self.param.L_R * 1e-3
+
+        if (extent is None) or (extent==self.param.bboxes[1]):
+            X, Y = self.regular_grid
+            bathymetry = self.h_func(X, Y)
+            u, v, p = self.regular_sols
+            extent = self.param.bboxes[1]
+            
+        else:
+            x0, xN, y0, yN = extent
+            file_name_ += f'_[{(xN-x0)*LR:.0f}km,{(yN-y0)*LR:.0f}km]'
+            Xold, Yold = self.regular_grid
+            x, y = np.linspace(x0, xN, Nx+1), np.linspace(y0, yN, Ny+1)
+            X, Y = np.meshgrid(x, y)
+            bathymetry = self.h_func(X, Y)
+            old_sols = np.array([sols.flatten() for sols in self.regular_sols])
+            new_sols = grid_convert(old_sols, (Xold.flatten(), Yold.flatten()),
+                                    (X, Y))
+            u, v, p = new_sols
+            
+    
+        Z1 = self.Z1_func(bathymetry) # Baroclinic normalisation coefficient
+        Z1_nd = Z1/np.sqrt(self.param.g) # Non-dimensional baroclinic normalisation coefficient
+        LR = self.param.L_R * 1e-3 #Rossby Radii in km's
+
+        animate_solutions(np.array([self.c_scale * u * Z1_nd,
+                                    self.c_scale * v * Z1_nd,
+                                    self.upper_layer_density * self.p_scale * p * Z1_nd]),
+                          (LR * X, LR * Y),
+                          wave_frequency=1.4,
+                          bbox=[LR * L for L in extent],
+                          padding=(0, 0),
+                          file_name=file_name_,
+                          folder_dir="Baroclinic Animation",
+                          mode=1
+                          )
+                    
+    
+    def energy_flux(self, extent=[-.025, .025, 0, .05]):
+        X, Y = self.regular_grid
         bathymetry = self.h_func(X, Y)
-        
-        u, v, p = np.split(sols, 3)
         baroclinic_wavespeed_sqrd = \
             self.wave_speed_sqrd_functions_apprx[1](bathymetry)
-        norm = baroclinic_wavespeed_sqrd/self.param.c**2
+            
         
-        u, v, p = grid_convert([u, v, p], (x, y), (X, Y))
-        Jx = .5 * norm * np.real(u * p.conjugate())
-        Jy = .5 * norm * np.real(v * p.conjugate())
+        norm = baroclinic_wavespeed_sqrd * \
+            (self.upper_layer_density**2)/self.lower_layer_density
         
-        from ppp.Plots import plot_setup
-        import matplotlib.pyplot as pt
-        from matplotlib import patches
+        u, v, p = self.regular_sols
         
-        x0, xN, y0, yN = (X[0,0], X[-1,-1], Y[0,0], Y[-1,-1])
+        self.Jx = .5 * norm * np.real(u * p.conjugate()) * self.c_scale * self.vert_scale
+        self.Jy = .5 * norm * np.real(v * p.conjugate()) * self.c_scale * self.vert_scale
+        self.plot_flux(extent)
+        Jx, Jy = self.calculate_radiating_energy_flux(extent)
+        
+        return Jx, Jy
 
-        for J, title_ in zip([Jx, Jy], ["$J_x$", "$J_y$"]):
-            val_max = np.max(np.abs(J))
-            fig, ax = plot_setup("x", "y", title=f"Non-dimensional {title_}")
+    def plot_flux(self, extent):
+        from ppp.Plots import plot_setup
+        from matplotlib import patches
+        X, Y = self.regular_grid
+        
+        x0, xN, y0, yN = extent
+        LR = 1e-3 * self.param.L_R
+    
+        for J, title_ in zip([self.Jx, self.Jy], ["$J_x$", "$J_y$"]):
+            val_max = np.nanmax(np.abs(J))
+            fig, ax = plot_setup("Alongshore (km)", "Crossshore (km))",
+                                 title=f"Energy Flux {title_} (W/m)")
             c = ax.matshow(J,
                     aspect="auto",
                     cmap="seismic",
-                    extent=(x0, xN, y0, yN),
+                    extent=[LR * L for L in self.param.bboxes[1]],
                     vmax=val_max, vmin=-val_max,
-                    origin="lower"
                 )
-
-            rect = patches.Rectangle((x0+x_padding, y0+y_padding),
-                                      (xN-x0)-2*x_padding,
-                                      (yN-y0)-2*y_padding,
-                                      linewidth=3,
-                                      edgecolor='black', facecolor='none')
+    
+            rect = patches.Rectangle((LR*x0, LR*y0),
+                                     LR*(xN-x0),
+                                     LR*(yN-y0),
+                                     linewidth=3,
+                                     edgecolor='black', facecolor='none')
             ax.add_patch(rect)
             fig.colorbar(c, ax=ax)
-            
-            pt.show()
-            
-        # return
 
-        # convert to from Rossby radii to km's
-        x *= LR
-        y *= LR
-        X *= LR
-        Y *= LR
-        x_padding *= LR
-        y_padding *= LR
+            from ppp.Plots import save_plot
+            save_plot(fig, ax,
+                      f"{title_.replace('$', '').replace('_', '')}_{self.name}",
+                          folder_name='Baroclinic Energy Flux Field')                
+
+    def calculate_radiating_energy_flux(self, extent, Nx=100, Ny=100):
+        X, Y = self.regular_grid
+        x0, xN, y0, yN = extent
+        x_grid = np.linspace(x0, xN, Nx+1)
+        y_grid = np.linspace(y0, yN, Ny+1)
+        X_new, Y_new = np.meshgrid(x_grid, y_grid)
+        dx, dy = (xN - x0)/Nx, (yN - y0)/Ny
         
-        for bbox_, name_ in zip([None,
-                                  (X[0,0]+x_padding,
-                                  X[-1,-1]-x_padding,
-                                  Y[0,0]+y_padding,
-                                  Y[-1,-1]-y_padding),
-                                  (X[0,0]+x_padding,
-                                  X[-1,-1]-x_padding,
-                                  0, 100)], ['', 'zoom', 'zoom2']):                                           
-            animate_solutions(sols, (x, y), new_grid=(X, Y),
-                              wave_frequency=1.4,
-                              bbox=bbox_,
-                              padding=(x_padding, y_padding),
-                              file_name=f'{name}_{name_}'
-                              )
-        return sols
+        from scipy.interpolate import griddata
+        self.Jx_new = griddata((X.flatten(), Y.flatten()), self.Jx.flatten(), (X_new, Y_new), method='cubic',
+                           fill_value=0)
+        self.Jy_new = griddata((X.flatten(), Y.flatten()), self.Jy.flatten(), (X_new, Y_new), method='cubic',
+                           fill_value=0)
+        
+        
+        Jx_vals1 = self.Jx_new[:, 0]
+        Jx_vals2 = self.Jx_new[:, -1]
+        
+        Jy_vals1 = self.Jy_new[0, :]
+        Jy_vals2 = self.Jy_new[-1, :]
+
+        from ppp.Plots import plot_setup, save_plot
+        
+        fig, ax = plot_setup("y", "Time-Averaged Along-Shore Energy Flux")
+        ax.plot(y_grid, Jx_vals1, label='counter-flow')
+        ax.plot(y_grid, Jx_vals2, label='contra-flow')
+        save_plot(fig, ax,
+                  f"Jx_{self.name}",
+                      folder_name='Baroclinic Energy Flux')
+            
+        
+        fig, ax = plot_setup("x", "Time-Averaged Cross-Shore Energy Flux")
+        ax.plot(x_grid, Jy_vals1, label='shore-ward')
+        ax.plot(x_grid, Jy_vals2, label='ocean-ward')
+        save_plot(fig, ax,
+                  f"Jy_{self.name}",
+                      folder_name='Baroclinic Energy Flux')
+            
+        Jy_t = dy*np.sum(Jx_vals2-Jx_vals1)/(yN - y0)
+        Jx_t = dx*np.sum(Jy_vals2-Jy_vals1)/(xN - x0)
+        
+        return Jx_t, Jy_t
 
 def grid_convert(vals, old_grid, new_grid):
     from scipy.interpolate import griddata
-    
     new_vals = []
     for val in vals:
-        val_r = griddata(old_grid, val.real,
-                         new_grid, method="cubic")
-        val_i = griddata(old_grid, val.imag,
-                         new_grid, method="cubic")
-        new_vals.append((val_r + 1j * val_i)[:, :, 0])
+        new_vals.append(griddata(old_grid, val,
+                         new_grid, method="cubic"))
         
     return new_vals
 
@@ -665,12 +747,9 @@ def plot(vals, t, old_grid, new_grid, padding=(2.5e-2, 5e-2)):
     time = np.linspace(0, 2*np.pi/1.4, 21)
 
     for val, label in zip([u, v, p], ['u', 'v', 'p']):
-        val_r = griddata((x, y), val.real,
+        vals = griddata((x, y), val,
                                (X, Y), method="cubic")
-        val_i = griddata((x, y), val.imag,
-                               (X, Y), method="cubic")
-        
-        vals = val_r + 1j * val_i
+
         max_val = np.max(abs(vals))
         for t in time:
             fig, ax = plot_setup('Along-shore ($\\rm{km}$)',
@@ -702,10 +781,17 @@ class animate_solutions(object):
     def __init__(self, vals, old_grid, new_grid=None, wave_frequency=1.4,
                  start_time=0, periods=1, N_period=50, frame_rate=10,
                  repeat=3, padding=(2.5e-2, 5e-2), bbox=None, file_name='test',
-                 folder_dir='Baroclinic Animation', mode=1):
+                 folder_dir='Baroclinic Animation', mode=1, key_value=5e-2):
         self.old_grid, self.new_grid = old_grid, new_grid
         self.x, self.y = old_grid
         self.u, self.v, self.p = np.split(vals, 3)
+
+        self.u = self.u[0, ::40, ::40]
+        self.v = self.v[0, ::40, ::40]
+        self.p = self.p[0]
+        self.mode = mode
+        self.key_value = key_value
+        
         self.t0 = start_time
         self.repeat = repeat
         self.wave_frequency = wave_frequency
@@ -716,7 +802,6 @@ class animate_solutions(object):
         self.fps = frame_rate
         self.file_name, self.folder_dir = file_name, folder_dir
         self.padding = padding
-        self.mode = mode
         
         if self.new_grid is None:
             self.values = vals
@@ -724,69 +809,96 @@ class animate_solutions(object):
             grid = old_grid
 
         else:
-            
             self.values = grid_convert([self.u, self.v, self.p],
                                        self.old_grid,
                                        self.new_grid)
             grid = new_grid
-            
+
         self.x0 = grid[0][0, 0]
         self.xN = grid[0][-1, -1]
         self.y0 = grid[1][0, 0]
         self.yN = grid[1][-1, -1]
         self.bbox=(self.x0, self.xN, self.y0, self.yN) if bbox is None \
             else bbox
-            
-        
+
         self.fig_init()
-        
         self.start_anim()
         
     def fig_init(self):
-        from ppp.Plots import set_axis, subplots
+        from ppp.Plots import plot_setup, add_colorbar
         from matplotlib import patches
-    
-        self.fig, self.axis = subplots(3, 1, y_share=True)
-        self.magnitudes = []
-        self.plots = []
-        labels = ['u', 'v', 'p']
-        for i in range(3):
-            title_ = f'${labels[i]}_{self.mode}$'
-            ax = self.axis[i]
-            set_axis(ax, title=title_, scale=.75)
-            vals = self.values[i].real
-            self.magnitudes.append(np.max(np.abs(vals)))
-            
-            c = ax.matshow(vals,
-                    aspect="auto",
-                    cmap="seismic",
-                    extent=(self.x0, self.xN, self.y0, self.yN),
-                    origin="lower",
-                    vmin=-self.magnitudes[-1],
-                    vmax=self.magnitudes[-1],
-                )
-            self.plots.append(c)
-            
-            if self.padding:
-                x_padding, y_padding = self.padding
-                rect = patches.Rectangle((self.x0+x_padding, self.y0+y_padding),
-                                          (self.xN-self.x0)-2*x_padding,
-                                          (self.yN-self.y0)-2*y_padding,
-                                          linewidth=3,
-                                          edgecolor='black', facecolor='none')
-                ax.add_patch(rect)
-            
-            self.fig.colorbar(c, ax=ax)
-            ax.set_xlim([self.bbox[0], self.bbox[1]])
-            ax.set_ylim([self.bbox[2], self.bbox[3]])
+
+        self.fig, self.ax = plot_setup(
+            x_label="Along-shore (km)", y_label="Cross-shore (km)"
+        )
+        self.max_p = np.nanmax(np.abs(self.p))
+        self.c = self.ax.contourf(
+            (self.p).real,
+            cmap="seismic",
+            alpha=0.5,
+            extent=(self.x0, self.xN, self.y0, self.yN),
+            origin="lower",
+            levels=np.linspace(-self.max_p, self.max_p, 21),
+        )
+        
+        cbar = add_colorbar(self.c)
+        cbar.ax.tick_params(labelsize=16)
+
+        self.Q = self.ax.quiver(
+            self.X[::40, ::40],
+            self.Y[::40, ::40],
+            (self.u).real,
+            (self.v).real,
+            width=0.002,
+            scale=1,
+        )
+
+        self.ax.quiverkey(
+            self.Q,
+            .9,
+            0.04,
+            self.key_value,
+            r"$5\,\rm{cm/s}$",
+            labelpos="W",
+            coordinates="figure",
+            fontproperties={"weight": "bold", "size": 18},
+        )
+
+        if self.padding:
+            x_padding, y_padding = self.padding
+            rect = patches.Rectangle((self.x0+x_padding, self.y0+y_padding),
+                                      (self.xN-self.x0)-2*x_padding,
+                                      (self.yN-self.y0)-2*y_padding,
+                                      linewidth=3,
+                                      edgecolor='black', facecolor='none')
+            self.ax.add_patch(rect)
+        
+        self.ax.set_aspect("equal")
+        self.ax.set_xlim([self.bbox[0], self.bbox[1]])
+        self.ax.set_ylim([self.bbox[2], self.bbox[3]])
         self.fig.tight_layout()
-            
+
     def animate(self, k):
         sgn = self.wave_frequency/np.abs(self.wave_frequency)
         phase = np.exp(-sgn*2j*np.pi*k/self.Nt)
-        for j, plot in enumerate(self.plots):
-            vals = self.values[j] * phase
-            plot.set_data(vals.real)
+        
+        for c in self.c.collections:
+            c.remove()
+            
+        self.c = self.ax.contourf(
+            (self.p * phase).real,
+            cmap='seismic',
+            alpha=0.5,
+            extent=(self.x0, self.xN, self.y0, self.yN),
+            origin="lower",
+            levels=np.linspace(-self.max_p, self.max_p, 21)
+        )
+        
+        self.Q.set_UVC((self.u * phase).real, (self.v * phase).real)
+        self.ax.set_aspect("equal")
+        self.ax.set_xlim([self.bbox[0], self.bbox[1]])
+        self.ax.set_ylim([self.bbox[2], self.bbox[3]])  
+        self.fig.tight_layout()
             
     def start_anim(self):
         # import os
@@ -798,7 +910,6 @@ class animate_solutions(object):
                         self.animate, frames=self.repeat*self.Nt)
             
         writervideo = animation.FFMpegWriter(fps=self.fps)
-        print('saving')
         self.anim.save(f'{self.folder_dir}/{self.file_name}.mp4',
                        writer=writervideo)
 
