@@ -487,7 +487,6 @@ rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
                                   padding=(0, 0),
                                   file_name=f"{self.barotropic_dir}_forcing",
                                   folder_dir="Baroclinic/Barotropic Animation",
-                                  titles=titles_,
                                   mode=1
                                   )
 
