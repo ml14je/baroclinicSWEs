@@ -28,6 +28,7 @@ def sponge1(x, y, param, magnitude=.05, x_padding=.01, y_padding=.01):
 
 def sponge2(x, y, param, magnitude=.05, x_padding=.01, y_padding=.01,
             xc=None, yc=None, gauss_parameter=6):
+    import numpy as np
     x0, xN, y0, yN = np.array(param.bboxes[1]) * 1e3 /param.L_R
     
     if xc is None:
@@ -114,10 +115,10 @@ if __name__ == '__main__':
     param = configure.main()
     
     bbox_barotropic = (-100, 100, 0, 200)
-    bbox_baroclinic = (-400, 400, -200, 400)
+    bbox_baroclinic = (-500, 500, -400, 600)
     param.bboxes = [bbox_barotropic, bbox_baroclinic]
     plot_friction(param, sponge2,
-                  magnitude=1, x_padding=.135,
-                  y_padding=.1, plot_name='') 
+                  magnitude=1, x_padding=.2,
+                  y_padding=.2, plot_name='') 
     
     

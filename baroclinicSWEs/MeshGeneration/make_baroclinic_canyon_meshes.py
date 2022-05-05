@@ -83,8 +83,8 @@ h=[{h_min:.2e},{h_max:.2e}]_slp={slope_parameter:.1f}_"
                 
             else:
                 mesh_name += f"CanyonWidth={param.canyon_width:.1f}km_\
-    CanyonLength={param.canyon_length:.1f}km_\
-    CanyonDepth={param.canyon_depth:.1f}m"
+CanyonLength={param.canyon_length:.1f}km_\
+CanyonDepth={param.canyon_depth:.1f}m"
                 
         else:
             if param.alpha < 1e-2 or \
@@ -93,7 +93,7 @@ h=[{h_min:.2e},{h_max:.2e}]_slp={slope_parameter:.1f}_"
                         mesh_name += "Slope"
             else:
                 mesh_name += f"CanyonWidth={param.canyon_width:.1f}km_\
-    alpha={param.alpha:.2f}_beta={param.beta:.2f}m"
+alpha={param.alpha:.2f}_beta={param.beta:.2f}m"
 
     from ppp.File_Management import dir_assurer
 

@@ -402,7 +402,7 @@ rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
         x0, xN, y0, yN = self.param.bboxes[0]
         LR = self.param.L_R * 1e-3
         file_dir = self.baroclinic_dir + \
-            f'_domainwidth={(xN-x0):.0f}kmx{(yN-y0):.0f}km_baroclinic_order={self.fem.N}'
+            f'_domainwidth={(xN-x0):.0f}kmx{(yN-y0):.0f}km_baroclinic_order={self.fem.N}_Rchange'
         dir_assurer('Baroclinic/Barotropic Forcing')
 
         if not file_exist(f'Baroclinic/Barotropic Forcing/{file_dir}.npz'):
@@ -456,7 +456,7 @@ rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
                 (self.c_scale**2)
             
             # self.plot_sponge_layer(self.sponge_padding)
-            R = self.sponge_function(.85*Xg, Yg)
+            R = self.sponge_function(Xg, Yg)
             domain_width = self.param.bboxes[1][1] - self.param.bboxes[1][0]
             R[abs(Xg)>.9*domain_width/2] = 1 # ensures no forcing at edge of domain
             u1_forcing = -T10 * p * hx * np.sqrt(1-R)
@@ -561,7 +561,7 @@ rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
         xN, x0, yN, y0 = self.param.bboxes[1]
 
         self.name = self.barotropic_dir + \
-            f'_domainwidth={(xN-x0):.0f}kmx{(yN-y0):.0f}km_order={self.order}'
+            f'_domainwidth={(xN-x0):.0f}kmx{(yN-y0):.0f}km_order={self.order}_Rchange'
         
         if not file_exist(f'{self.data_dir}/{self.name}.npz'):
             N = self.fem.Np * self.fem.K
@@ -776,14 +776,16 @@ def plot(vals, t, old_grid, new_grid, padding=(2.5e-2, 5e-2)):
             
             pt.show()
 
-class animate_solutions(object):
+class plot_solutions(object):
     def __init__(self, vals, old_grid, new_grid=None, wave_frequency=1.4,
                  start_time=0, periods=1, N_period=50, frame_rate=10,
-                 repeat=3, padding=(2.5e-2, 5e-2), bbox=None, file_name='test',
-                 folder_dir='Baroclinic Animation', mode=1, key_value=5e-2):
+                 repeat=3, padding=None, bbox=None, file_name='test',
+                 folder_dir='Baroclinic Animation', mode=1, key_value=5e-2,
+                 x_pos=.9, y_pos=.06, animate=True):
         self.old_grid, self.new_grid = old_grid, new_grid
         self.x, self.y = old_grid
         self.u, self.v, self.p = np.split(vals, 3)
+        self.x_pos, self.y_pos = x_pos, y_pos
 
         self.u = self.u[0, ::40, ::40]
         self.v = self.v[0, ::40, ::40]
@@ -821,7 +823,13 @@ class animate_solutions(object):
             else bbox
 
         self.fig_init()
-        self.start_anim()
+        if animate:
+            self.start_anim()
+            
+        else:
+            from ppp.Plots import save_plot
+            self.fig.tight_layout()
+            # save_plot(self.fig, self.ax, f'{self.folder_dir}/{self.file_name}')
         
     def fig_init(self):
         from ppp.Plots import plot_setup, add_colorbar
@@ -854,8 +862,8 @@ class animate_solutions(object):
 
         self.ax.quiverkey(
             self.Q,
-            .9,
-            0.04,
+            self.x_pos,
+            self.y_pos,
             self.key_value,
             r"$5\,\rm{cm/s}$",
             labelpos="W",
@@ -864,10 +872,9 @@ class animate_solutions(object):
         )
 
         if self.padding:
-            x_padding, y_padding = self.padding
-            rect = patches.Rectangle((self.x0+x_padding, self.y0+y_padding),
-                                      (self.xN-self.x0)-2*x_padding,
-                                      (self.yN-self.y0)-2*y_padding,
+            x1, x2, y1, y2 = self.padding
+            rect = patches.Rectangle((x1, y1),
+                                      x2-x1, y2-y1,
                                       linewidth=3,
                                       edgecolor='black', facecolor='none')
             self.ax.add_patch(rect)
@@ -901,6 +908,7 @@ class animate_solutions(object):
             
     def start_anim(self):
         # import os
+        import matplotlib.pyplot as pt
         import matplotlib.animation as animation
         from ppp.File_Management import dir_assurer
 
@@ -911,6 +919,8 @@ class animate_solutions(object):
         writervideo = animation.FFMpegWriter(fps=self.fps)
         self.anim.save(f'{self.folder_dir}/{self.file_name}.mp4',
                        writer=writervideo)
+        
+        pt.close(self.fig)
 
 if __name__ == "__main__":
     pass
