@@ -10,7 +10,7 @@ Created on Thu May  5 12:28:01 2022
 """
 import numpy as np
 
-class global_solutions(object):
+class Global_Solutions(object):
     def __init__(self, bbox, ω, inner_funcs, outer_funcs):
         x0, xN, y0, yN = bbox
         self.u = lambda x, y, t : \
@@ -30,6 +30,17 @@ class global_solutions(object):
                 (x > x0) * (x < xN) * (y > y0) * (y < yN) + \
             outer_funcs[2](x, y, t) * \
                 (1 - (x > x0) * (x < xN) * (y > y0) * (y < yN))
+                
+class Baroclinic_Solutions(object):
+    def __init__(self, funcs, ω, Z1):
+        self.u = lambda x, y, t : \
+            funcs[0](x, y) * np.exp(-1j * ω * t)
+        self.v = lambda x, y, t : \
+            funcs[1](x, y) * np.exp(-1j * ω * t)
+        self.p = lambda x, y, t : \
+            funcs[2](x, y) * np.exp(-1j * ω * t)
+        self.Z1 = Z1
+    
 
 def barotropic_flow(mesh,
                     param,
@@ -55,20 +66,12 @@ def barotropic_flow(mesh,
 
     sln_dir = f"{folder_name}/Functions/{file_name}_N={order}.pkl"
     dir_assurer(f"{folder_name}/Functions")
-    
-    # if file_exist(sln_dir):
-    #     with open(sln_dir, "rb") as inp:
-    #         try:
-    #             barotropic_solution = dill.load(inp)
-                
-    #         except EOFError:
-    #             continue
             
     try:
         with open(sln_dir, "rb") as inp:
             barotropic_solution = dill.load(inp)
             
-    except (EOFError, FileNotFoundError) as e:
+    except (EOFError, FileNotFoundError):
         P, T, mesh_name = mesh
         x0, xN, y0, yN = param.bboxes[0]
         Lx, Ly = xN - x0, yN - y0
@@ -179,7 +182,7 @@ def barotropic_flow(mesh,
         eps = 1e3/param.L_R
         bbox_temp = (x0+eps, xN-eps, y0, yN)
         
-        barotropic_solution = global_solutions(
+        barotropic_solution = Global_Solutions(
             bbox_temp, ω, funcs, kelvin_solutions
             )
 
@@ -202,9 +205,9 @@ def baroclinic_flow(param,
                     scheme="Lax-Friedrichs",
                     θ=0.5,
                     rotation=True,
-                    sponge_padding=(.225, .175),
-                    sponge_function=np.vectorize(lambda x, y: 1),
-                    rayleigh_friction_magnitude=5e-2,
+                    domain_extension=(500, 500), # in km
+                    damping_width=200, # in km
+                    rayleigh_friction_magnitude=.6,
                     save_all=True,
                     animate=True,
                     verbose=True
@@ -223,12 +226,14 @@ def baroclinic_flow(param,
     from ppp.File_Management import dir_assurer, file_exist
 
     folder_name = "Baroclinic"
-    file_name = barotropic_name + \
+    baroclinic_name = barotropic_name + \
             f"_rho1={param.ρ_min:.0f}_rho2={param.ρ_max:.0f}_\
-rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
+rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m_\
+sponge=({domain_extension[0]:.1f}km,{domain_extension[1]:.0f}km)_\
+width={damping_width:.0f}km_N={order}"
     folder_name = "Baroclinic"
     
-    sln_dir = f"{folder_name}/Functions/{file_name}_N={order}_Rchange.pkl"
+    sln_dir = f"{folder_name}/Functions/{baroclinic_name}.pkl"
     dir_assurer(f"{folder_name}/Functions")
     
     try:
@@ -255,8 +260,7 @@ rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
         assert P.shape == s, "Incorrect recompilation of coordinates"
     
         scheme_, boundary_conditions_ = scheme, boundary_conditions
-        ω, r, s = param.ω/param.f, rayleigh_friction_magnitude, sponge_function
-        sponge_padding_ = sponge_padding
+        ω, r = param.ω/param.f, rayleigh_friction_magnitude
     
         from ppp.File_Management import dir_assurer, file_exist
         dir_assurer("Baroclinic/FEM Objects")
@@ -287,13 +291,14 @@ rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
             fem,
             barotropic_solution,
             barotropic_name,
+            baroclinic_name,
             bathymetry_func,
             flux_scheme=scheme_,
             boundary_conditions=boundary_conditions_,
             rotation=True,
             rayleigh_friction=r,
-            sponge_function=s,
-            sponge_padding=sponge_padding_
+            domain_extension=domain_extension,
+            damping_width=damping_width,
         )
     
         sols = baroclinic_swes.boundary_value_problem(wave_frequency=ω)
@@ -309,26 +314,16 @@ rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
             (x, y), irregular_sols[i], fill_value=0
             ) for i in range(3)]
         
-        class baroclinic_solution:
-            u = lambda x, y, t : \
-            solutions[0](x, y) * np.exp(-1j * ω * t)
-            v = lambda x, y, t : \
-            solutions[1](x, y) * np.exp(-1j * ω * t)
-            p = lambda x, y, t : \
-            solutions[2](x, y) * np.exp(-1j * ω * t)
-
-            Z1_func = baroclinic_swes.Z1_func
-            c1_func = baroclinic_swes.baroclinic_wavespeed_apprx
-            # swes = baroclinic_swes
+        baroclinic_solution = Baroclinic_Solutions(solutions, ω, baroclinic_swes.Z1_func)
             
         with open(sln_dir, "wb") as outp:
             if verbose:
-                print("Saving Barotropic solution function")
+                print("Saving Baroclinic solution function")
                 
             dill.dump(baroclinic_solution, outp)
     
     if animate:
-        for zoom in [True, False]:
+        for zoom in [False]:
             Nx, Ny = 1000, 1000
             bbox_temp = np.array(param.bboxes[1]) * 1e3 /param.L_R if not \
                 zoom else np.array([-100, 100, 0, 200]) * 1e3 /param.L_R
@@ -338,24 +333,26 @@ rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
             Xg, Yg = np.meshgrid(xg, yg)
     
             bathymetry = param.H_D * bathymetry_func(Xg, Yg)
-            Z1 = baroclinic_solutions.Z1_func(bathymetry)
+            Z1 = baroclinic_solution.Z1(bathymetry)
             # print(self.barotropic_sols)
-            u = baroclinic_solutions.u(Xg, Yg, 0)
-            v = baroclinic_solutions.v(Xg, Yg, 0)
-            p = baroclinic_solutions.p(Xg, Yg, 0)
+            u = baroclinic_solution.u(Xg, Yg, 0)
+            v = baroclinic_solution.v(Xg, Yg, 0)
+            p = baroclinic_solution.p(Xg, Yg, 0)
             LR = 1e-3 * param.L_R
     
-            from baroclinicSWEs.Baroclinic import animate_solutions
-            animate_solutions(np.array([param.c * u * Z1,
-                                        param.c * v * Z1,
+            from baroclinicSWEs.Baroclinic import plot_solutions
+            plot_solutions(np.array([param.c * u * Z1/param.g,
+                                        param.c * v * Z1/param.g,
                                         param.ρ_ref * \
-                                            (param.c**2) * p * Z1]),
+                                            (param.c**2) * p * Z1/param.g]),
                               (LR * Xg, LR * Yg),
                               wave_frequency=1.4,
                               bbox=[LR * L for L in bbox_temp],
-                              padding=(0, 0),
+                              padding=param.bboxes[0],
+                              repeat=1,
                               file_name=f"alpha={param.alpha:.2f}_\
-beta={param.beta:.2f}_CanyonWidth={param.canyon_width:.1f}km_order={order}_zoom={zoom}",
+beta={param.beta:.2f}_CanyonWidth={param.canyon_width:.1f}km_order={order}_{tuple(param.bboxes[1])}_\
+sponge=({domain_extension[0]:.0f}km,{domain_extension[1]:.0f}km)_zoom={zoom}",
                               folder_dir="Baroclinic/Baroclinic Animation",
                               mode=1
                               )

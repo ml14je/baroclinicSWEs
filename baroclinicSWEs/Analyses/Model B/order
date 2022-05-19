@@ -8,7 +8,7 @@
 #$ -m be
 
 # Set up a maximum runtime of x hours
-#$ -l h_rt=06:00:00
+#$ -l h_rt=07:00:00
 
 # Use 1 core
 #$ -pe smp 1
@@ -17,6 +17,6 @@
 ##$ -l node_type=40core-768G
 
 #Request some memory per core
-#$ -l h_vmem=80G
+#$ -l h_vmem=100G
 
-python parameter_runs.py
+python experiments.py --order=3

@@ -320,7 +320,7 @@ class MultiLayerModes(object):
                               (d)/(h**2)),
                  np.vectorize(lambda h : 0)]
                     ]
-
+            
             self.vertical_structure_functions_apprx = [
                 lambda h : np.array([
                         self.approx_normalisations[0](h), self.approx_normalisations[0](h)

@@ -25,13 +25,14 @@ def startup(
     potential_forcing=False,
     θ=0.5,
     rotation=True,
-    sponge_padding=(350, 350), #in kilometres
+    domain_extension=(400, 400), #in kilometres
+    damping_width=150, #in kilometres
     plot_mesh=True,
     save_all=True,
     verbose=True,
     canyon_kelvin=True,
 ):
-    from solutions import barotropic_flow, baroclinic_flow
+    from baroclinicSWEs.Analyses import solutions
     # Canyon parameters defined globally
     param.alpha, param.beta, param.canyon_width = alpha, beta, canyon_width
 
@@ -81,8 +82,10 @@ ShelfWidth={param.L_C*1e-3:.0f}km_SlopeWidth={param.L_S*1e-3:.0f}km"
     slope_topography = lambda y : slope_temp(y * param.L_R) / param.H_D
     canyon_topography = lambda x, y : \
         canyon_temp(x * param.L_R, y * param.L_R) / param.H_D
+        
+    param.slope_topography = slope_topography
+    param.canyon_topography = canyon_topography
 
-    print(alpha, beta, canyon_width)
     if alpha < 1e-2 or beta < 1e-2 or canyon_width < 1:
         file_name += '_Slope'
     else:
@@ -133,7 +136,7 @@ _Alpha={alpha:.2f}_Beta={beta:.2f}"
             )
     
         barotropic_solutions = \
-            barotropic_flow(
+            solutions.barotropic_flow(
                 barotropic_mesh,
                 param,
                 barotropic_order,
@@ -162,6 +165,7 @@ _Alpha={alpha:.2f}_Beta={beta:.2f}"
             foldername=f"Barotropic/Kelvin Flow/{'_'.join(file_name.split('_')[1:-1])}",
             filename=f"KelvinMode_Domain={Lx}kmx{Ly}km_ω={param.ω:.1e}",
         )
+        param.k = k / param.L_R
         
         file_name += "_SlopeKelvin"
         
@@ -171,16 +175,6 @@ _Alpha={alpha:.2f}_Beta={beta:.2f}"
     ### Baroclinic Response ###
     from baroclinicSWEs.Configuration import sponge_layer
     from baroclinicSWEs.MeshGeneration import make_baroclinic_canyon_meshes
-
-    ## Sponge Layer ##
-    sponge_padding = np.array(sponge_padding) * 1e3 / param.L_R
-    sponge_func = lambda x, y : sponge_layer.sponge2(
-        x, y, param,
-        magnitude=1,
-        x_padding=sponge_padding[0],
-        y_padding=sponge_padding[1],
-        xc=0, yc=(param.L_C + param.L_S/2)/param.L_R
-        )
 
     h_min = (λ - L0) / 10 if (W < 1e-4 or \
         beta < 1e-2 or \
@@ -198,7 +192,13 @@ _Alpha={alpha:.2f}_Beta={beta:.2f}"
         plot_mesh=False,
         slope_parameter=25,
         mesh_gradation=.35,
-        sponge_function=lambda x, y : sponge_func(.6*x, .3*y),
+        sponge_function=lambda x, y : sponge_layer.lavelle_x(
+            .6*x, param,
+            magnitude=1,
+            x_padding=domain_extension[0]*1e3/param.L_R,
+            D=damping_width,
+            xc=0),
+        model='B',
         verbose=verbose,
     )
     
@@ -217,22 +217,218 @@ _Alpha={alpha:.2f}_Beta={beta:.2f}"
         )
 
     ## Barotropic Solution ##
-    baroclinic_solutions = baroclinic_flow(param,
-                                      baroclinic_order,
-                                      baroclinic_mesh,
-                                      barotropic_solutions,
-                                      file_name,
-                                      canyon_topography,
-                                      boundary_conditions=boundary_conditions[1],
-                                      scheme=scheme,
-                                      sponge_padding=sponge_padding,
-                                      sponge_function=sponge_func,
-                                      rayleigh_friction_magnitude=.05,
-                                      verbose=verbose
-                                      )
+    baroclinic_solutions = solutions.baroclinic_flow(
+        param,
+        baroclinic_order,
+        baroclinic_mesh,
+        barotropic_solutions,
+        file_name,
+        canyon_topography,
+        boundary_conditions=boundary_conditions[1],
+        scheme=scheme,
+        domain_extension=domain_extension,
+        damping_width=damping_width,
+        rayleigh_friction_magnitude=.5,
+        verbose=verbose
+        )
     
     return barotropic_solutions, baroclinic_solutions
+
+def post_process(param, barotropic_slns, baroclinic_slns,
+                 NN=1000,
+                 show_barotropic_sln=True,
+                 show_baroclinic_sln=True,
+                 show_fluxes=True,
+                 show_dissipation=True
+                 ):
+    from ppp.Plots import plot_setup, add_colorbar
+    import matplotlib.pyplot as pt
+
+    bbox_barotropic = param.bboxes[0]
+    x = np.linspace(bbox_barotropic[0], bbox_barotropic[1], NN+1) * 1e3/param.L_R
+    y = np.linspace(bbox_barotropic[2], bbox_barotropic[3], NN+1) * 1e3/param.L_R
+    dx, dy = param.L_R * (x[-1] - x[0])/NN, param.L_R * (y[-1] - y[0])/NN
+    Xg, Yg = np.meshgrid(x, y)
+    
+    
+    ### Barotropic domain ###
+    bathymetry = param.canyon_topography(Xg, Yg) * param.H_D
+    Z1 = baroclinic_slns.Z1(bathymetry)/np.sqrt(param.g)
+    # print(np.max(np.abs((Z1 - (param.H_pyc/bathymetry) * np.sqrt(param.reduced_gravity/param.g)))))
+    
+    # Baroclinic quantities in BL
+    p1 = param.ρ_ref * (param.c**2) * Z1 * baroclinic_slns.p(Xg, Yg, 0) # * np.exp(-1j * k * Xg)
+    u1 = param.c * Z1 * baroclinic_slns.u(Xg, Yg, 0)
+    v1 = param.c * Z1 * baroclinic_slns.v(Xg, Yg, 0)
+    
+
+    # Barotropic quantities in BL
+    p0 = param.ρ_ref * (param.c**2) * barotropic_slns.p(Xg, Yg, 0)
+    u0 = param.c * barotropic_slns.u(Xg, Yg, 0)
+    v0 = param.c * barotropic_slns.v(Xg, Yg, 0)
+    
+    if show_barotropic_sln:
+        for phase in np.arange(5) * 2*np.pi/5:
+            fig, ax = plot_setup('Along-shore (km)',
+                         'Cross-shore (km)')
+
+            P = 1e-3 * (p0 * np.exp(1j*phase)).real
+            c = ax.contourf(P,
+                            cmap='seismic',
+                            extent=[bbox_barotropic[0], bbox_barotropic[1],
+                                    bbox_barotropic[2], bbox_barotropic[3]],
+                            alpha=0.5,
+                            vmin=-np.max(np.abs(p0)) * 1e-3, vmax=np.max(np.abs(p1)) * 1e-3,
+                            levels=np.linspace(-np.max(np.abs(p0)*1e-3),
+                                               +np.max(np.abs(p0)*1e-3),
+                                               21)
+                            )
+            cbar = add_colorbar(c, ax=ax)
+            cbar.ax.tick_params(labelsize=16)
+        
+            U, V = (u0 * np.exp(1j*phase)).real, (v0 * np.exp(1j*phase)).real
+            X, Y = Xg * param.L_R *1e-3, Yg * param.L_R *1e-3
+            Q = ax.quiver(
+                   X[::40, ::40],
+                   Y[::40, ::40],
+                   U[::40, ::40], V[::40, ::40],
+                   width=0.002,
+                   scale=1,
+                   )
+        
+            ax.quiverkey(
+                Q,
+                .75, .03, #x and y position of key
+                .05, #unit
+                r"$5\,\rm{cm/s}$",
+                labelpos="W",
+                coordinates="figure",
+                fontproperties={"weight": "bold", "size": 18},
+            )
+            ax.set_aspect('equal')
+            fig.tight_layout()
+            pt.show()
+
+    if show_baroclinic_sln:
+        for phase in np.arange(5) * 2*np.pi/5:
+            fig, ax = plot_setup('Along-shore (km)',
+                         'Cross-shore (km)')
+
+            P = (p1 * np.exp(1j*phase)).real
+            c = ax.contourf(P,
+                            cmap='seismic',
+                            extent=[bbox_barotropic[0], bbox_barotropic[1],
+                                    bbox_barotropic[2], bbox_barotropic[3]],
+                            alpha=0.5,
+                            vmin=-np.max(np.abs(p1)), vmax=np.max(np.abs(p1)),
+                            levels=np.linspace(-np.max(np.abs(p1)),
+                                               np.max(np.abs(p1)),
+                                               21)
+                            )
+            cbar = add_colorbar(c, ax=ax)
+            cbar.ax.tick_params(labelsize=16)
+        
+            U, V = (u1 * np.exp(1j*phase)).real, (v1 * np.exp(1j*phase)).real
+            X, Y = Xg * param.L_R *1e-3, Yg * param.L_R *1e-3
+            Q = ax.quiver(
+                   X[::40, ::40],
+                   Y[::40, ::40],
+                   U[::40, ::40], V[::40, ::40],
+                   width=0.002,
+                   scale=1,
+                   )
+        
+            ax.quiverkey(
+                Q,
+                .75, .03, #x and y position of key
+                .05, #unit
+                r"$5\,\rm{cm/s}$",
+                labelpos="W",
+                coordinates="figure",
+                fontproperties={"weight": "bold", "size": 18},
+            )
+            ax.set_aspect('equal')
+            fig.tight_layout()
+            pt.show()
             
+    from barotropicSWEs.Configuration import topography
+    h = bathymetry
+    h1 = param.H_pyc ; h2 = h - h1
+    hx, hy = topography.grad_function(h, dy, dx)
+    w0 = - (hx * u0 + hy * v0) # barotropic vertical velocity in BL
+    D = .5 * (p1 * w0.conjugate()).real #barotropic dissipation
+    Jx = .5 * (h * h2/h1) * (p1 * u1.conjugate()).real   # along-shore baroclinic energy flux
+    Jy = .5 * (h * h2/h1) * (p1 * v1.conjugate()).real   # cross-shore baroclinic energy flux
+
+    if show_fluxes:
+        J = np.sqrt(Jx ** 2 + Jy**2)
+        fig, ax = plot_setup('Along-shore (km)',
+                              'Cross-shore (km)')
+        J_max = np.max(J)
+        c = ax.imshow(J,
+                      cmap='YlOrBr', aspect='equal',
+                      extent=bbox_barotropic,
+                      origin='lower',
+                      vmin=0, vmax=J_max
+                      )
+        cbar = fig.colorbar(c, ax=ax)
+        cbar.ax.set_ylabel('Energy Flux ($\\rm{W/m}$)', rotation=270,
+                            fontsize=16, labelpad=20)
+        
+        Q = ax.quiver(
+               X[::40, ::40],
+               Y[::40, ::40],
+               1e-3*Jx[::40, ::40], 1e-3*Jy[::40, ::40],
+               width=0.002,
+               scale=1,
+               )
+        ax.quiverkey(
+            Q,
+            .85, .03,
+            .4,
+            r"$400\,\rm{W/m}$",
+            labelpos="W",
+            coordinates="figure",
+            fontproperties={"weight": "bold", "size": 18},
+        )
+        ax.set_aspect('equal')
+        fig.tight_layout()
+        pt.show()
+
+
+    if show_dissipation:
+        fig, ax = plot_setup('Along-shore (km)',
+                              'Cross-shore (km)')
+        D_max = 1e3 * np.max(D)
+        c = ax.imshow(D*1e3,
+                      cmap='seismic', aspect='equal',
+                      extent=bbox_barotropic,
+                      origin='lower',
+                      vmin=-D_max, vmax=D_max
+                      )
+        cbar = fig.colorbar(c, ax=ax)
+        cbar.ax.set_ylabel('Energy Dissipation ($\\rm{mW/m^2}$)', rotation=270,
+                            fontsize=16, labelpad=20)
+        pt.show()
+
+    D_total = dx * dy * np.sum(
+        ((D[1:] + D[:-1])[:, 1:] + (D[1:] + D[:-1])[:, :-1])/4)#/200e3
+    Jx_R = .5 * dy * np.sum(Jx[1:, 0] + Jx[:-1, 0])
+    Jx_L = .5 * dy * np.sum(Jx[1:, -1] + Jx[:-1, -1])
+    Jy_D = .5 * dx * np.sum(Jy[-1, 1:] + Jy[-1, :-1])
+    Jy_C = .5 * dx * np.sum(Jy[0, 1:] + Jy[0, :-1])
+    print(f"\\tOffshore: {Jy_D:.1f} W\n\tOnshore: {Jy_C:.1f} W\
+\n\tRightward: {Jx_R:.1f} W\n\tLeftward: {Jx_L:.1f} W")
+
+    Jx_total = Jx_L - Jx_R
+    Jy_total = Jy_D - Jy_C
+    print(f"Jx = {Jx_total:.1f} W/m, Jy = {Jy_total:.1f} W/m", flush=True)
+    J_total = Jx_total + Jy_total
+    print(f"Total Energy Flux in Box: {J_total:.2f} W/m", flush=True)
+    print(f"Total Energy Dissipation in Box: {D_total:.2f} W/m", flush=True)
+    
+    return J_total, D_total
+        
 def parameter_run(
     param,
     canyon_width,
@@ -244,33 +440,9 @@ def parameter_run(
     h_min=5e-4,
     h_max=1e-2,
     plot_slope_topography=False,
-    goal='Solutions'
     ):
     
-    assert goal.upper() in ['NORMS', 'SOLUTIONS', 'PERTURBATIONS'], \
-        "Invalid choice of goal."
-    alpha_save, beta_save = np.array([.5, .35, .2]), np.array([.2, .5, .8])
-          
-    if goal.upper() == 'SOLUTIONS':
-        fine_mesh_ = False
-        plot_perturbation_ = False
-        plot_solution_ = True
-        
-        alpha_values = np.array([.5, .35, .2])
-        beta_values = np.array([.2, .5, .8])
-    
-    elif goal.upper() == 'PERTURBATIONS':
-        fine_mesh_ = False
-        plot_perturbation_ = True
-        plot_solution_ = False
-        
-        alpha_values = np.array([.5, .35, .2])
-        beta_values = np.array([.2, .5, .8])
-
-    else:
-        fine_mesh_ = True
-        plot_perturbation_ = False
-        plot_solution_ = False
+    # alpha_save, beta_save = np.array([.5, .35, .2]), np.array([.2, .5, .8])
 
     ### No Canyon Solution ###
     barotropic_sols, baroclinic_swes = startup(
@@ -288,29 +460,37 @@ def parameter_run(
             save_all=True
             )
     
+    param.canyon_width = canyon_width
+    
+    domain_padding, damping_width= 300, 100 # in km
     for i, alpha in enumerate(alpha_values):
         for j, beta in enumerate(beta_values):
             param.canyon_depth = param.H_D - (param.H_D - param.H_C) * \
                 np.cos(beta * np.pi/2)**2
+            param.canyon_length = (alpha * param.L_C + beta * param.L_S) * 1e-3
             param.alpha, param.beta = alpha, beta
-            save_all = alpha in alpha_save and beta in beta_save
+            # save_all = alpha in alpha_save and beta in beta_save
 
-            barotropic_sols, baroclinic_swes = startup(
-                                            param,
-                                            h_min,
-                                            h_max,
-                                            order,
-                                            mesh_name="",
-                                            canyon_width=canyon_width,
-                                            alpha=param.alpha,
-                                            beta=param.beta,
-                                            plot_domain=False,
-                                            boundary_conditions=["Specified", "Solid Wall"],
-                                            scheme=numerical_flux,
-                                            save_all=save_all
-                                            )
+            # Slope solutions
+            barotropic_solution, baroclinic_solution = startup(
+                param,
+                5e-4,
+                1e-2,
+                order,
+                mesh_name="",
+                canyon_width=param.canyon_width,  # in kilometres
+                alpha=param.alpha, # ND
+                beta=param.beta, #ND
+                boundary_conditions=["SPECIFIED", 'SOLID WALL'],
+                scheme="Central",
+                domain_extension=(domain_padding,
+                                  domain_padding), #in kilometres
+                damping_width=damping_width
+            )
             
-            raise ValueError
+            J, D = post_process(param,
+                                barotropic_solution,
+                                baroclinic_solution)
             
             del barotropic_sols, baroclinic_swes
 
@@ -320,9 +500,9 @@ if __name__ == "__main__":
     # param.order = 2
     param.bbox_dimensional = (-100, 100, 0, 200)
     bbox_barotropic = (-100, 100, 0, 200)
-    bbox_baroclinic = (-750, 750, -650, 850)
+    bbox_baroclinic = (-400, 400, -300, 300)
     param.bboxes = [bbox_barotropic, bbox_baroclinic]
-    alpha_values = np.round(np.linspace(.05, 0.95, 46), 3) #10, 91, 901
+    alpha_values = np.array([.2, .8])
     beta_values = np.round(np.linspace(.05, 0.95, 46), 3)
 
     parameter_run(
@@ -330,7 +510,6 @@ if __name__ == "__main__":
         param.canyon_width,
         alpha_values,
         beta_values,
-        order=(3, 2),
-        numerical_flux="Central", #,"Lax-Friedrichs"
-        goal='SOLUTIONS' #Either plot solutions, plot perturbations or plot norms
-    )
+        order=1,
+        numerical_flux="Central",
+        )

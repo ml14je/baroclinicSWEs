@@ -19,7 +19,6 @@ class solver(object):
         fem,
         barotropic_sols,
         barotropic_name,
-        baroclinic_name,
         h_func,
         periods=2,
         flux_scheme="central",
@@ -29,8 +28,8 @@ class solver(object):
         θ=1,
         wave_frequency=1.4,
         rayleigh_friction=0,
-        domain_extension=(200, 200), #in kilometres
-        damping_width=50 #in kilometres
+        sponge_function=np.vectorize(lambda x, y : 0),
+        sponge_padding=(2.25e-1, 3e-1)
     ):
         from scipy.sparse import diags
         
@@ -39,16 +38,18 @@ class solver(object):
         self.order = fem.N
         self.barotropic_sols = barotropic_sols
         self.barotropic_dir = barotropic_name
-        self.baroclinic_dir = baroclinic_name
-        self.domain_extension = domain_extension
-        self.damping_width = damping_width
+        self.baroclinic_dir = barotropic_name + \
+            f"_rho1={param.ρ_min:.0f}_rho2={param.ρ_max:.0f}_\
+rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m"
         
         self.rotation = rotation
         self.ω = wave_frequency
+        self.sponge_function = sponge_function
         self.rayleigh_friction = rayleigh_friction
 
         self.X, self.Y = self.fem.x.flatten("F"), self.fem.y.flatten("F")
         self.data_dir = f"{data_dir}/Solutions"
+        self.sponge_padding = sponge_padding
         
         from ppp.File_Management import dir_assurer
         dir_assurer(self.data_dir)
@@ -98,7 +99,6 @@ class solver(object):
         self.upper_layer_density = param.ρ_min
         self.lower_layer_density = param.ρ_max
         self.reference_density = param.ρ_ref
-        self.rel_density_diff = (param.ρ_max-param.ρ_min)/param.ρ_max
         
         from baroclinicSWEs.modal_decomposition import MultiLayerModes
         self.modes = MultiLayerModes(self.bathymetry,
@@ -131,13 +131,89 @@ class solver(object):
         self.C1_sqrd = diags(self.baroclinic_wavespeed_apprx/self.param.c**2)
         self.Z0_func, self.Z1_func = self.approx_normalisations #normalisations
         self.Z0, self.Z1 = self.Z0_func(self.bathymetry), self.Z1_func(self.bathymetry)
-
-        # self.T10 = diags(param.H_D * self.modal_interaction_coefficients_apprx[1][0](self.bathymetry))
-        # self.T11 = diags(param.H_D * self.modal_interaction_coefficients_apprx[1][1](self.bathymetry))
         
         self.matrix_setup()
         self.baroclinic_friction()
         self.generate_barotropic_forcing()
+
+    def timestep(
+        self,
+        u0,
+        v0,
+        η0,
+        t_final=1,
+        Nout=None,
+        file_name=None,
+        method="RK4",
+        ω=None,
+        φ=0,
+        animate=False,
+        N_frames=100,
+    ):
+        from ppp.Jacobi import JacobiGQ
+        from numpy.linalg import norm
+
+        # Compute time-step size
+        rLGL = JacobiGQ(0, 0, self.fem.N)[0]
+        rmin = norm(rLGL[0] - rLGL[1])
+        dtscale = self.fem.dtscale
+        dt = np.min(dtscale) * rmin * 2 / 3 #(see Hesthaven and Warburton, 2008)
+        dt = rmin/np.sqrt(np.max(self.barotropic_wavespeed_apprx/self.param.c**2))
+
+        # from math import ceil
+
+        # Nt = ceil((t_final / N_frames) / dt)
+        # dt = .001 #t_final / (Nt * N_frames)
+
+        if Nout is None:
+            Nout = self.fem.N
+        if file_name is None:
+            file_name = f"Solutions: {self.scheme}"
+        u, v, η = np.copy(u0), np.copy(v0), np.copy(η0)
+        ω = self.ω if ω is None else ω
+        N = self.fem.Np * self.fem.K
+        from scipy.sparse import csr_matrix as sp
+        from scipy.sparse import block_diag, identity
+
+        i = identity(N)
+        I2 = block_diag(2 * [self.R_friction] + [sp((N, N))])
+        # I3 = block_diag(3 * [i])
+
+        assert ω is not None
+
+        # Potential forcing φ of frequency ω
+        T = 4
+
+        F = (
+            lambda t: self.barotropic_forcing
+            * np.exp(-1j * ω * t)
+            * (np.tanh(t / (5 * T))) ** 4
+        )
+        
+        r_ = lambda t: 1 - np.tanh(t / (10 * T)) ** 4
+
+        x, y = np.round(self.X, 15), np.round(self.Y, 15)
+        Nx, Ny = 500, 500
+        xg, yg = np.linspace(self.param.bboxes[1][0], self.param.bboxes[1][1], Nx), \
+            np.linspace(self.param.bboxes[1][2], self.param.bboxes[1][3], Ny)
+        X, Y = np.meshgrid(xg, yg)
+        
+        y_old = np.concatenate([u, v, η], axis=0)[:, None]
+        
+        # from scipy.sparse.linalg import spsolve
+        y_vals = np.zeros((1001, 3*u.shape[0]), dtype=complex)
+        t = 0
+        for i in range(10000000):
+            # print(y_old.shape, (F(t)).shape)
+            y_new = y_old + dt * ((self.A - r_(t) * I2) @ y_old + F(t))
+            t += dt
+            y_old = y_new
+            if (i+1) % 1000 == 0:
+                j = int((i+1)//1000)
+                y_vals[j, :] = y_new[:, 0]
+                plot(y_new[:, 0], t, (x, y), (X, Y))
+
+        raise ValueError
 
 
     def matrix_setup(self):
@@ -273,9 +349,7 @@ class solver(object):
             # η+ = (-nt^2 + nx^2 + ny^2)η- - 2 * nt * nx * h- u- - 2 * nt * ny * h- v-
             # u+ = (-nt^2 + nx^2 + ny^2)η- - 2 * nt * nx * h- u- - 2 * nt * ny * h- v-
             # v+ = (-nt^2 + nx^2 + ny^2)η- - 2 * nt * nx * h- u- - 2 * nt * ny * h- v-
-
-            raise ValueError('Not coded. Choose a different boundary condition or \
-code it yourself haha')
+            pass
 
         Ipu = bsp([[Ipu1, Ipu2, Ipu3]])
         Ipv = bsp([[Ipv1, Ipv2, Ipv3]])
@@ -322,27 +396,28 @@ code it yourself haha')
         self.U_D = self.LIFT @ self.Fscale @ self.Flux @ self.Un
 
     def generate_barotropic_forcing(self,
-                                    animate_barotropic_solutions=False,
-                                    animate_barotropic_forcing=False):
+                                    animate_barotropic_solutions=True,
+                                    animate_barotropic_forcing=True):
         from ppp.File_Management import dir_assurer, file_exist
         x0, xN, y0, yN = self.param.bboxes[0]
         LR = self.param.L_R * 1e-3
         file_dir = self.baroclinic_dir + \
-            f'_domainwidth={(xN-x0):.0f}kmx{(yN-y0):.0f}km_baroclinic_order={self.fem.N}'
+            f'_domainwidth={(xN-x0):.0f}kmx{(yN-y0):.0f}km_baroclinic_order={self.fem.N}_Rchange'
         dir_assurer('Baroclinic/Barotropic Forcing')
 
         if not file_exist(f'Baroclinic/Barotropic Forcing/{file_dir}.npz'):
             X1, Y1 = self.X, self.Y
-            Nx, Ny = 100, 1000
+            Nx, Ny = 1000, 1000
             
             bbox_temp = np.array(self.param.bboxes[1]) * 1e3 /self.param.L_R
+            # bbox_temp[0] = - bbox_temp[3]/2
+            # bbox_temp[1] = + bbox_temp[3]/2
             bbox_temp[2] = 0 # y0 = 0 (coastline)
             x0, xN, y0, yN = bbox_temp
-            
+            dx = (xN - x0)/Nx
+            dy = (yN - y0)/Ny
             
             xg, yg = np.linspace(x0, xN, Nx+1), np.linspace(y0, yN, Ny+1)
-            dx = (xg[-1] - xg[0])/Nx
-            dy = (yg[-1] - yg[0])/Ny
             Xg, Yg = np.meshgrid(xg, yg)
 
             bathymetry = self.h_func(Xg, Yg)
@@ -351,43 +426,43 @@ code it yourself haha')
             from scipy.interpolate import griddata
                     
 
-            Z0 = self.Z0_func(bathymetry) #dimensional
-            Z1 = self.Z1_func(bathymetry) #dimensional
-            u = self.barotropic_sols.u(Xg, Yg, 0) # Non-dimensional w.r.t c
-            v = self.barotropic_sols.v(Xg, Yg, 0) # Non-dimensional w.r.t c
-            p = self.barotropic_sols.p(Xg, Yg, 0) # Non-dimensional w.r.t \rho c^2
+            Z0 = self.Z0_func(bathymetry)
+            Z1 = self.Z1_func(bathymetry)
+            # print(self.barotropic_sols)
+            u = self.barotropic_sols.u(Xg, Yg, 0)/Z0
+            v = self.barotropic_sols.v(Xg, Yg, 0)/Z0
+            p = self.barotropic_sols.p(Xg, Yg, 0)/Z0
             assert not np.all(u - v == 0), "Error in function uniqueness!"
             
             if animate_barotropic_solutions:
-                plot_solutions(np.array([self.c_scale * u,
-                                         self.c_scale * v,
-                                         1e-3 * self.reference_density * \
-                                             self.p_scale * p]),
+                animate_solutions(np.array([self.c_scale * u * Z0,
+                                            self.c_scale * v * Z0,
+                                            1e-3 * self.reference_density * self.p_scale * p * Z0]),
                                   (LR * Xg, LR * Yg),
                                   wave_frequency=1.4,
                                   bbox=[LR * L for L in bbox_temp],
-                                  padding=(x0, xN, y0, yN),
+                                  padding=(0, 0),
                                   file_name=self.barotropic_dir,
                                   folder_dir="Baroclinic/Barotropic Animation",
                                   mode=0
                                   )
-            
-            hx, hy = topography.grad_function(bathymetry/self.vert_scale,
-                                              dy, dx)
-            
-            T10 = self.modal_interaction_coefficients_apprx[1][0](bathymetry)
-                
-            T10 *= self.vert_scale #Non-dimensional
 
+            hx, hy = topography.grad_function(bathymetry/self.vert_scale, dx, dy) # bathymetric gradients
+    
+            # L_R = self.param.L_R*1e-3
+            T10 = self.modal_interaction_coefficients_apprx[1][0](bathymetry) * \
+                self.vert_scale
             c0_sqrd = self.wave_speed_sqrd_functions_apprx[0](bathymetry)/ \
                 (self.c_scale**2)
             
-            ratio = (self.domain_extension[0] + self.damping_width)/self.domain_extension[0]
-            R = self.σ_x(ratio*Xg)
-            u1_forcing = -T10 * p * hx * (1-R)
-            v1_forcing = -T10 * p * hy * (1-R)
-            p1_forcing = -T10 * c0_sqrd * (u * hx + v * hy) * (1-R)
-
+            # self.plot_sponge_layer(self.sponge_padding)
+            R = self.sponge_function(Xg, Yg)
+            domain_width = self.param.bboxes[1][1] - self.param.bboxes[1][0]
+            R[abs(Xg)>.9*domain_width/2] = 1 # ensures no forcing at edge of domain
+            u1_forcing = -T10 * p * hx * np.sqrt(1-R)
+            v1_forcing = -T10 * p * hy * np.sqrt(1-R)
+            p1_forcing = -T10 * c0_sqrd * (u * hx + v * hy) * np.sqrt(1-R)
+               
             forcings = [
                 u1_forcing,
                 v1_forcing,
@@ -398,14 +473,19 @@ code it yourself haha')
                 v1_forcing * self.p_scale * (1/self.hor_scale) * Z1,
                 p1_forcing * (self.c_scale**3) * (1/self.hor_scale) * Z1]
 
-            if animate_barotropic_forcing:                    
+            if animate_barotropic_forcing:
+                labels = ['u', 'v', 'p']
+                units = ['m/s^2', 'm/s^2', 'Pa/s']
+                titles_ = [f'${labels[i]}_1$ Forcing [$\\rm{{{units[i]}}}$]' \
+                           for i in range(3)]
+                    
                 bbox_temp = np.array(self.param.bboxes[1]) * 1e3 /self.param.L_R
 
-                plot_solutions(np.array(forcings_dim), (Xg*LR, Yg*LR),
+                animate_solutions(np.array(forcings_dim), (Xg*LR, Yg*LR),
                                   wave_frequency=1.4,
                                   bbox=[LR * L for L in bbox_temp],
-                                  padding=(x0, xN, y0, yN),
-                                  file_name=f"{self.baroclinic_dir}_forcing",
+                                  padding=(0, 0),
+                                  file_name=f"{self.barotropic_dir}_forcing",
                                   folder_dir="Baroclinic/Barotropic Animation",
                                   mode=1
                                   )
@@ -434,28 +514,10 @@ code it yourself haha')
             forcing_baroclinic_grid)[:, None]
 
     def baroclinic_friction(self):
-        from baroclinicSWEs.Configuration import sponge_layer
-        from scipy.sparse import block_diag, diags
-        self.σ_x = lambda x : sponge_layer.lavelle_x(x,
-                                                     self.param,
-                                                     magnitude=1,
-                                                     x_padding=self.domain_extension[0] * 1e3/self.param.L_R,
-                                                     xc=0,
-                                                     D=self.damping_width)
-        self.σ_y = lambda y : sponge_layer.lavelle_y(y,
-                                                     self.param,
-                                                     magnitude=1,
-                                                     y_padding=self.domain_extension[1] * 1e3/self.param.L_R,
-                                                     yc=self.param.L_C/self.param.L_R,
-                                                     D=self.damping_width)
-        self.σ = lambda x, y : self.σ_x(x) + self.σ_y(y)
+        from scipy.sparse import diags
 
-
-        self.R = self.rayleigh_friction * block_diag(
-            [diags(self.σ_x(self.X)),
-             diags(self.σ_y(self.Y)), 
-             diags(self.σ(self.X, self.Y))]
-            )
+        R = self.sponge_function(self.X, self.Y) * self.rayleigh_friction
+        self.R_friction = diags(R)
         
     def plot_sponge_layer(self, sponge_padding):
         from ppp.Plots import plot_setup
@@ -495,10 +557,12 @@ code it yourself haha')
         from ppp.File_Management import file_exist
 
         ω = self.ω if wave_frequency is None else wave_frequency
-        # LR = 1e-3 * self.param.L_R
+        LR = 1e-3 * self.param.L_R
         xN, x0, yN, y0 = self.param.bboxes[1]
 
-        self.name = self.baroclinic_dir
+        self.name = self.barotropic_dir + \
+            f'_domainwidth={(xN-x0):.0f}kmx{(yN-y0):.0f}km_order={self.order}_Rchange'
+        
         if not file_exist(f'{self.data_dir}/{self.name}.npz'):
             N = self.fem.Np * self.fem.K
             i = identity(N)
@@ -506,8 +570,9 @@ code it yourself haha')
             I = block_diag([i] * 3)
             assert ω is not None
             
-            # damping = self.R #Alternative: block_diag(2 * [self.R_friction] + o)
-            A = -self.A - 1j * ω * I + self.R
+            damping = block_diag(3 * [self.R_friction]) #Alternative: block_diag(2 * [self.R_friction] + o)
+    
+            A = -self.A - 1j * ω * I + damping
             if verbose:
                 print("Solving BVP using spsolve", flush=True)
                 
@@ -552,7 +617,7 @@ code it yourself haha')
         Z1_nd = Z1/np.sqrt(self.param.g) # Non-dimensional baroclinic normalisation coefficient
         LR = self.param.L_R * 1e-3 #Rossby Radii in km's
 
-        plot_solutions(np.array([self.c_scale * u * Z1_nd,
+        animate_solutions(np.array([self.c_scale * u * Z1_nd,
                                     self.c_scale * v * Z1_nd,
                                     self.upper_layer_density * self.p_scale * p * Z1_nd]),
                           (LR * X, LR * Y),
@@ -805,6 +870,7 @@ class plot_solutions(object):
             coordinates="figure",
             fontproperties={"weight": "bold", "size": 18},
         )
+
         if self.padding:
             x1, x2, y1, y2 = self.padding
             rect = patches.Rectangle((x1, y1),

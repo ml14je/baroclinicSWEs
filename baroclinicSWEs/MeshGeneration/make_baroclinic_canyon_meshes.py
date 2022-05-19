@@ -102,7 +102,6 @@ alpha={param.alpha:.2f}_beta={param.beta:.2f}m"
     h_func_dim = lambda x, y: param.H_D * canyon_func(x, y)
 
     from baroclinicSWEs.MeshGeneration import box_mesh
-    print(h_min, h_max,)
     P, T = box_mesh.main(
         bbox,
         h_min,
