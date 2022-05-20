@@ -180,7 +180,24 @@ _Alpha={alpha:.2f}_Beta={beta:.2f}"
         beta < 1e-2 or \
             alpha < 1e-2) \
                 else min(W / 8, (λ - L0) / 20)
-    
+                
+    # x = np.linspace(param.bboxes[1][0], param.bboxes[1][1], 1001)*1e3/param.L_R
+    # y = np.linspace(param.bboxes[1][2], param.bboxes[1][3], 1001)*1e3/param.L_R
+    # X, Y = np.meshgrid(x, y)
+    # R = sponge_layer.lavelle_x(
+    #     X, param,
+    #     magnitude=1,
+    #     x_padding=domain_extension[0]*1e3/param.L_R,
+    #     D=damping_width,
+    #     xc=0)
+    # import matplotlib.pyplot as pt
+    # pt.imshow(R,
+    #           cmap='seismic',
+    #           aspect='equal',
+    #           extent=param.bboxes[1])
+    # pt.show()
+    # raise ValueError
+
     ## Baroclinic Mesh Generation ##
     baroclinic_mesh = make_baroclinic_canyon_meshes.mesh_generator(
         tuple([xx * 1e3/param.L_R for xx in param.bboxes[1]]),
@@ -236,36 +253,41 @@ _Alpha={alpha:.2f}_Beta={beta:.2f}"
 
 def post_process(param, barotropic_slns, baroclinic_slns,
                  NN=1000,
-                 show_barotropic_sln=True,
-                 show_baroclinic_sln=True,
-                 show_fluxes=True,
-                 show_dissipation=True
+                 show_barotropic_sln=False,
+                 show_baroclinic_sln=False,
+                 show_fluxes=False,
+                 show_dissipation=False
                  ):
     from ppp.Plots import plot_setup, add_colorbar
     import matplotlib.pyplot as pt
 
-    bbox_barotropic = param.bboxes[0]
-    x = np.linspace(bbox_barotropic[0], bbox_barotropic[1], NN+1) * 1e3/param.L_R
-    y = np.linspace(bbox_barotropic[2], bbox_barotropic[3], NN+1) * 1e3/param.L_R
-    dx, dy = param.L_R * (x[-1] - x[0])/NN, param.L_R * (y[-1] - y[0])/NN
-    Xg, Yg = np.meshgrid(x, y)
+    bbox_barotropic, bbox_baroclinic = param.bboxes
+    x0 = np.linspace(bbox_barotropic[0], bbox_barotropic[1], NN+1) * 1e3/param.L_R
+    y0 = np.linspace(bbox_barotropic[2], bbox_barotropic[3], NN+1) * 1e3/param.L_R
+    dx0, dy0 = param.L_R * (x0[-1] - x0[0])/NN, param.L_R * (y0[-1] - y0[0])/NN
+    Xg0, Yg0 = np.meshgrid(x0, y0)
+    
+    # x1 = np.linspace(bbox_baroclinic[0], bbox_baroclinic[1], NN+1) * 1e3/param.L_R
+    # y1 = np.linspace(bbox_baroclinic[2], bbox_baroclinic[3], NN+1) * 1e3/param.L_R
+    # dx1, dy1 = param.L_R * (x1[-1] - x1[0])/NN, param.L_R * (y1[-1] - y1[0])/NN
+    # Xg1, Yg1 = np.meshgrid(x1, y1)
     
     
     ### Barotropic domain ###
-    bathymetry = param.canyon_topography(Xg, Yg) * param.H_D
+    bathymetry = param.canyon_topography(Xg0, Yg0) * param.H_D
     Z1 = baroclinic_slns.Z1(bathymetry)/np.sqrt(param.g)
     # print(np.max(np.abs((Z1 - (param.H_pyc/bathymetry) * np.sqrt(param.reduced_gravity/param.g)))))
     
     # Baroclinic quantities in BL
-    p1 = param.ρ_ref * (param.c**2) * Z1 * baroclinic_slns.p(Xg, Yg, 0) # * np.exp(-1j * k * Xg)
-    u1 = param.c * Z1 * baroclinic_slns.u(Xg, Yg, 0)
-    v1 = param.c * Z1 * baroclinic_slns.v(Xg, Yg, 0)
+    p1 = param.ρ_ref * (param.c**2) * Z1 * baroclinic_slns.p(Xg0, Yg0, 0) # * np.exp(-1j * k * Xg)
+    u1 = param.c * Z1 * baroclinic_slns.u(Xg0, Yg0, 0)
+    v1 = param.c * Z1 * baroclinic_slns.v(Xg0, Yg0, 0)
     
 
     # Barotropic quantities in BL
-    p0 = param.ρ_ref * (param.c**2) * barotropic_slns.p(Xg, Yg, 0)
-    u0 = param.c * barotropic_slns.u(Xg, Yg, 0)
-    v0 = param.c * barotropic_slns.v(Xg, Yg, 0)
+    p0 = param.ρ_ref * (param.c**2) * barotropic_slns.p(Xg0, Yg0, 0)
+    u0 = param.c * barotropic_slns.u(Xg0, Yg0, 0)
+    v0 = param.c * barotropic_slns.v(Xg0, Yg0, 0)
     
     if show_barotropic_sln:
         for phase in np.arange(5) * 2*np.pi/5:
@@ -287,7 +309,7 @@ def post_process(param, barotropic_slns, baroclinic_slns,
             cbar.ax.tick_params(labelsize=16)
         
             U, V = (u0 * np.exp(1j*phase)).real, (v0 * np.exp(1j*phase)).real
-            X, Y = Xg * param.L_R *1e-3, Yg * param.L_R *1e-3
+            X, Y = Xg0 * param.L_R *1e-3, Yg0 * param.L_R *1e-3
             Q = ax.quiver(
                    X[::40, ::40],
                    Y[::40, ::40],
@@ -329,7 +351,7 @@ def post_process(param, barotropic_slns, baroclinic_slns,
             cbar.ax.tick_params(labelsize=16)
         
             U, V = (u1 * np.exp(1j*phase)).real, (v1 * np.exp(1j*phase)).real
-            X, Y = Xg * param.L_R *1e-3, Yg * param.L_R *1e-3
+            X, Y = Xg0 * param.L_R *1e-3, Yg0 * param.L_R *1e-3
             Q = ax.quiver(
                    X[::40, ::40],
                    Y[::40, ::40],
@@ -354,7 +376,7 @@ def post_process(param, barotropic_slns, baroclinic_slns,
     from barotropicSWEs.Configuration import topography
     h = bathymetry
     h1 = param.H_pyc ; h2 = h - h1
-    hx, hy = topography.grad_function(h, dy, dx)
+    hx, hy = topography.grad_function(h, dy0, dx0)
     w0 = - (hx * u0 + hy * v0) # barotropic vertical velocity in BL
     D = .5 * (p1 * w0.conjugate()).real #barotropic dissipation
     Jx = .5 * (h * h2/h1) * (p1 * u1.conjugate()).real   # along-shore baroclinic energy flux
@@ -411,23 +433,24 @@ def post_process(param, barotropic_slns, baroclinic_slns,
                             fontsize=16, labelpad=20)
         pt.show()
 
-    D_total = dx * dy * np.sum(
-        ((D[1:] + D[:-1])[:, 1:] + (D[1:] + D[:-1])[:, :-1])/4)#/200e3
-    Jx_R = .5 * dy * np.sum(Jx[1:, 0] + Jx[:-1, 0])
-    Jx_L = .5 * dy * np.sum(Jx[1:, -1] + Jx[:-1, -1])
-    Jy_D = .5 * dx * np.sum(Jy[-1, 1:] + Jy[-1, :-1])
-    Jy_C = .5 * dx * np.sum(Jy[0, 1:] + Jy[0, :-1])
-    print(f"\\tOffshore: {Jy_D:.1f} W\n\tOnshore: {Jy_C:.1f} W\
+    D_total = dx0 * dy0 * np.sum(
+        ((D[1:] + D[:-1])[:, 1:] + (D[1:] + D[:-1])[:, :-1])/4)
+    Jx_R = .5 * dy0 * np.sum(Jx[1:, 0] + Jx[:-1, 0])
+    Jx_L = .5 * dy0 * np.sum(Jx[1:, -1] + Jx[:-1, -1])
+    Jy_D = .5 * dx0 * np.sum(Jy[-1, 1:] + Jy[-1, :-1])
+    Jy_C = .5 * dx0 * np.sum(Jy[0, 1:] + Jy[0, :-1])
+    print(f"\tOffshore: {Jy_D:.1f} W\n\tOnshore: {Jy_C:.1f} W\
 \n\tRightward: {Jx_R:.1f} W\n\tLeftward: {Jx_L:.1f} W")
 
     Jx_total = Jx_L - Jx_R
     Jy_total = Jy_D - Jy_C
-    print(f"Jx = {Jx_total:.1f} W/m, Jy = {Jy_total:.1f} W/m", flush=True)
+    print(f"Jx = {Jx_total:.1f} W/m, Jy = {Jy_total:.1f} W", flush=True)
     J_total = Jx_total + Jy_total
-    print(f"Total Energy Flux in Box: {J_total:.2f} W/m", flush=True)
-    print(f"Total Energy Dissipation in Box: {D_total:.2f} W/m", flush=True)
-    
+    print(f"Total Energy Flux in Box: {J_total:.2f} W", flush=True)
+    print(f"Total Energy Dissipation in Box: {D_total:.2f} W", flush=True)
+
     return J_total, D_total
+
         
 def parameter_run(
     param,
@@ -436,16 +459,14 @@ def parameter_run(
     beta_values,
     order=3,
     numerical_flux="Central",
-    slope_choice="Cos_Squared",
     h_min=5e-4,
     h_max=1e-2,
     plot_slope_topography=False,
     ):
-    
-    # alpha_save, beta_save = np.array([.5, .35, .2]), np.array([.2, .5, .8])
+    domain_padding, damping_width= 400, 150 # in km
 
     ### No Canyon Solution ###
-    barotropic_sols, baroclinic_swes = startup(
+    barotropic_sols, baroclinic_sols = startup(
             param,
             h_min,
             h_max,
@@ -457,14 +478,21 @@ def parameter_run(
             plot_domain=False,
             boundary_conditions=["Specified", "Solid Wall"],
             scheme=numerical_flux,
-            save_all=True
+            save_all=True,
+            domain_extension=(domain_padding,
+                              domain_padding), #in kilometres
+            damping_width=damping_width
             )
     
-    param.canyon_width = canyon_width
+    J, D = post_process(param,
+                        barotropic_sols,
+                        baroclinic_sols)
     
-    domain_padding, damping_width= 300, 100 # in km
+    param.canyon_width = canyon_width
+    print(f"Canyon width: {param.canyon_width:.1f} km", flush=True)
     for i, alpha in enumerate(alpha_values):
         for j, beta in enumerate(beta_values):
+            print(f"\talpha: {alpha:.2f}, beta: {beta:.2f}", flush=True)
             param.canyon_depth = param.H_D - (param.H_D - param.H_C) * \
                 np.cos(beta * np.pi/2)**2
             param.canyon_length = (alpha * param.L_C + beta * param.L_S) * 1e-3
@@ -492,24 +520,23 @@ def parameter_run(
                                 barotropic_solution,
                                 baroclinic_solution)
             
-            del barotropic_sols, baroclinic_swes
+            del barotropic_solution, baroclinic_solution
 
 if __name__ == "__main__":
-    from barotropicSWEs.Configuration import configure     
+    from barotropicSWEs.Configuration import configure
     param = configure.main()
-    # param.order = 2
-    param.bbox_dimensional = (-100, 100, 0, 200)
+    param.bbox_dimensional = (-150, 150, 0, 300)
     bbox_barotropic = (-100, 100, 0, 200)
-    bbox_baroclinic = (-400, 400, -300, 300)
+    bbox_baroclinic = (-700, 700, -500, 700)
     param.bboxes = [bbox_barotropic, bbox_baroclinic]
     alpha_values = np.array([.2, .8])
-    beta_values = np.round(np.linspace(.05, 0.95, 46), 3)
+    beta_values = np.round(np.linspace(.05, 0.95, 19), 3)
 
     parameter_run(
         param,
         param.canyon_width,
         alpha_values,
         beta_values,
-        order=1,
+        order=param.order,
         numerical_flux="Central",
         )

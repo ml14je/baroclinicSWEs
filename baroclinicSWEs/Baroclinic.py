@@ -369,7 +369,8 @@ code it yourself haha')
                                   padding=(x0, xN, y0, yN),
                                   file_name=self.barotropic_dir,
                                   folder_dir="Baroclinic/Barotropic Animation",
-                                  mode=0
+                                  mode=0,
+                                  repeat=1,
                                   )
             
             hx, hy = topography.grad_function(bathymetry/self.vert_scale,
