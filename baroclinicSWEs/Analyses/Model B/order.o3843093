@@ -1,0 +1,14 @@
+## Hosts assigned to job 3843093.1:
+##
+## d11s2b4.arc4.leeds.ac.uk 1 slots
+##
+## Resources granted:
+##
+## h_vmem = 50G (per slot)
+## h_rt   = 47:55:00
+## disk   = 1G (per slot)
+
+
+
+Canyon width: 10.0 km
+	alpha: 0.02, beta: 0.46

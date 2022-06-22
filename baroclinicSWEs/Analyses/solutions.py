@@ -86,7 +86,7 @@ def barotropic_flow(mesh,
             coastal_lengthscale=(param.L_C + param.L_S) / param.L_R,
             tidal_amplitude=1,
             forcing_frequency=param.ω / param.f,
-            foldername=f"{folder_name}/Kelvin Flow/{'_'.join(file_name.split('_')[1:-1])}",
+            foldername=f"{folder_name}/Kelvin Flow",
             filename=f"KelvinMode_Domain={Lx}kmx{Ly}km_ω={param.ω:.1e}",
         )
         
@@ -111,25 +111,24 @@ def barotropic_flow(mesh,
         Y[abs(Y - yN) < 1e-15] = yN
         P = np.array([X, Y]).T
         assert P.shape == s, "Incorrect recompilation of coordinates"
-
-        wall_inds = np.where((Y == y0))[0]
-        open_inds2 = np.where((X == x0) | (X == xN))[0]
-        open_inds = np.where(Y == yN)[0]
-        BC_maps, BC_Types = [wall_inds, open_inds, open_inds2], \
-            ["Wall", "Open", "Open2"]
-        BCs = dict(zip(BC_Types, BC_maps))
+        if boundary_conditions.upper() == "SPECIFIED":
+            wall_inds = np.where((Y == y0))[0]
+            open_inds2 = np.where((X == x0) | (X == xN))[0]
+            open_inds = np.where(Y == yN)[0]
+            BC_maps, BC_Types = [wall_inds, open_inds, open_inds2], \
+                ["Wall", "Open", "Open2"]
+            BCs = dict(zip(BC_Types, BC_maps))
     
         if not file_exist(fem_dir):
+            if verbose:
+                print("Creating FEM class")
+
+            fem = FEM(P, T, N=order, BCs=BCs)   
+
             if save_all:
                 with open(fem_dir, "wb") as outp:
-                    if verbose:
-                        print("Creating FEM class")
         
-                    fem = FEM(P, T, N=order, BCs=BCs)
                     pickle.dump(fem, outp, pickle.HIGHEST_PROTOCOL)
-                    
-            else:
-                fem = FEM(P, T, N=order, BCs=BCs)   
     
         else:
             if verbose:
@@ -186,11 +185,12 @@ def barotropic_flow(mesh,
             bbox_temp, ω, funcs, kelvin_solutions
             )
 
-        with open(sln_dir, "wb") as outp:
-            if verbose:
-                print("Saving Barotropic solution function")
-                
-            dill.dump(barotropic_solution, outp)
+        if save_all:
+            with open(sln_dir, "wb") as outp:
+                if verbose:
+                    print("Saving Barotropic solution function")
+                    
+                dill.dump(barotropic_solution, outp)
 
         
     return barotropic_solution
@@ -227,8 +227,7 @@ def baroclinic_flow(param,
 
     folder_name = "Baroclinic"
     baroclinic_name = barotropic_name + \
-            f"_rho1={param.ρ_min:.0f}_rho2={param.ρ_max:.0f}_\
-rho={param.ρ_ref:.0f}_h1={param.H_pyc:.0f}m_\
+            f"_\
 sponge=({domain_extension[0]:.1f}km,{domain_extension[1]:.0f}km)_\
 width={damping_width:.0f}km_N={order}"
     folder_name = "Baroclinic"
@@ -262,19 +261,18 @@ width={damping_width:.0f}km_N={order}"
         scheme_, boundary_conditions_ = scheme, boundary_conditions
         ω, r = param.ω/param.f, rayleigh_friction_magnitude
     
-        from ppp.File_Management import dir_assurer, file_exist
+        from ppp.File_Management import dir_assurer
         dir_assurer("Baroclinic/FEM Objects")
         fem_dir = f"Baroclinic/FEM Objects/{mesh_name}_N={order}.pkl"
-    
+        
         if not file_exist(fem_dir):
+            if verbose:
+                print("Creating Baroclinic FEM class")
+            fem = FEM(P, T, N=order)
     
-            with open(fem_dir, "wb") as outp:
-                if verbose:
-                    print("Creating Baroclinic FEM class")
-    
-                fem = FEM(P, T, N=order)
-    
-                if save_all:
+            if save_all:
+                with open(fem_dir, "wb") as outp:
+                        
                     pickle.dump(fem, outp, pickle.HIGHEST_PROTOCOL)
     
         else:
@@ -301,7 +299,8 @@ width={damping_width:.0f}km_N={order}"
             damping_width=damping_width,
         )
     
-        sols = baroclinic_swes.boundary_value_problem(wave_frequency=ω)
+        sols = baroclinic_swes.boundary_value_problem(wave_frequency=ω,
+                                                      save_solution=save_all)
         u1, v1, p1 = np.split(sols, 3)
         assert not np.all(u1 - v1 == 0), "Error in solutions!"
         
@@ -315,15 +314,16 @@ width={damping_width:.0f}km_N={order}"
             ) for i in range(3)]
         
         baroclinic_solution = Baroclinic_Solutions(solutions, ω, baroclinic_swes.Z1_func)
-            
-        with open(sln_dir, "wb") as outp:
-            if verbose:
-                print("Saving Baroclinic solution function")
-                
-            dill.dump(baroclinic_solution, outp)
+         
+        if save_all:
+            with open(sln_dir, "wb") as outp:
+                if verbose:
+                    print("Saving Baroclinic solution function")
+                    
+                dill.dump(baroclinic_solution, outp)
     
     if animate:
-        for zoom in [False]:
+        for zoom in [True]:
             Nx, Ny = 1000, 1000
             bbox_temp = np.array(param.bboxes[1]) * 1e3 /param.L_R if not \
                 zoom else np.array([-100, 100, 0, 200]) * 1e3 /param.L_R
@@ -354,7 +354,9 @@ width={damping_width:.0f}km_N={order}"
 beta={param.beta:.2f}_CanyonWidth={param.canyon_width:.1f}km_order={order}_{tuple(param.bboxes[1])}_\
 sponge=({domain_extension[0]:.0f}km,{domain_extension[1]:.0f}km)_zoom={zoom}",
                               folder_dir="Baroclinic/Baroclinic Animation",
-                              mode=1
+                              mode=1,
+                              x_pos=.77,
+                              y_pos=.03
                               )
 
     return baroclinic_solution

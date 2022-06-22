@@ -687,6 +687,218 @@ def plot_energy_fluxes(param, order=3, h_min=1e-3, h_max=5e-3,
         pt.show()
         # save_plot(fig, ax, f'PostProcessing/{scheme_}/Dissipation')
         
+def post_process(param, barotropic_slns, baroclinic_slns,
+                 NN=1000,
+                 show_barotropic_sln=False,
+                 show_baroclinic_sln=False,
+                 show_fluxes=False,
+                 show_dissipation=False
+                 ):
+    from ppp.Plots import plot_setup, add_colorbar
+    import matplotlib.pyplot as pt
+
+    bbox_barotropic, bbox_baroclinic = param.bboxes
+    x0 = np.linspace(bbox_barotropic[0], bbox_barotropic[1], NN+1) * 1e3/param.L_R
+    y0 = np.linspace(bbox_barotropic[2], bbox_barotropic[3], NN+1) * 1e3/param.L_R
+    dx0, dy0 = param.L_R * (x0[-1] - x0[0])/NN, param.L_R * (y0[-1] - y0[0])/NN
+    Xg0, Yg0 = np.meshgrid(x0, y0)
+    
+    # x1 = np.linspace(bbox_baroclinic[0], bbox_baroclinic[1], NN+1) * 1e3/param.L_R
+    # y1 = np.linspace(bbox_baroclinic[2], bbox_baroclinic[3], NN+1) * 1e3/param.L_R
+    # dx1, dy1 = param.L_R * (x1[-1] - x1[0])/NN, param.L_R * (y1[-1] - y1[0])/NN
+    # Xg1, Yg1 = np.meshgrid(x1, y1)
+    
+    
+    ### Barotropic domain ###
+    bathymetry = param.canyon_topography(Xg0, Yg0) * param.H_D
+    Z1 = baroclinic_slns.Z1(bathymetry)/np.sqrt(param.g)
+    # print(np.max(np.abs((Z1 - (param.H_pyc/bathymetry) * np.sqrt(param.reduced_gravity/param.g)))))
+    
+    # Baroclinic quantities in BL
+    p1 = param.ρ_ref * (param.c**2) * Z1 * baroclinic_slns.p(Xg0, Yg0, 0) # * np.exp(-1j * k * Xg)
+    u1 = param.c * Z1 * baroclinic_slns.u(Xg0, Yg0, 0)
+    v1 = param.c * Z1 * baroclinic_slns.v(Xg0, Yg0, 0)
+    
+
+    # Barotropic quantities in BL
+    p0 = param.ρ_ref * (param.c**2) * barotropic_slns.p(Xg0, Yg0, 0)
+    u0 = param.c * barotropic_slns.u(Xg0, Yg0, 0)
+    v0 = param.c * barotropic_slns.v(Xg0, Yg0, 0)
+    
+    if show_barotropic_sln:
+        for phase in -np.arange(5) * 2*np.pi/5:
+            fig, ax = plot_setup('Along-shore (km)',
+                         'Cross-shore (km)')
+
+            P = 1e-3 * (p0 * np.exp(1j*phase)).real
+            c = ax.contourf(P,
+                            cmap='seismic',
+                            extent=[bbox_barotropic[0], bbox_barotropic[1],
+                                    bbox_barotropic[2], bbox_barotropic[3]],
+                            alpha=0.5,
+                            vmin=-np.max(np.abs(p0)) * 1e-3, vmax=np.max(np.abs(p1)) * 1e-3,
+                            levels=np.linspace(-np.max(np.abs(p0)*1e-3),
+                                               +np.max(np.abs(p0)*1e-3),
+                                               21)
+                            )
+            cbar = add_colorbar(c, ax=ax)
+            cbar.ax.tick_params(labelsize=16)
+        
+            U, V = (u0 * np.exp(1j*phase)).real, (v0 * np.exp(1j*phase)).real
+            X, Y = Xg0 * param.L_R *1e-3, Yg0 * param.L_R *1e-3
+            Q = ax.quiver(
+                   X[::40, ::40],
+                   Y[::40, ::40],
+                   U[::40, ::40], V[::40, ::40],
+                   width=0.002,
+                   scale=1,
+                   )
+        
+            ax.quiverkey(
+                Q,
+                .75, .03, #x and y position of key
+                .05, #unit
+                r"$5\,\rm{cm/s}$",
+                labelpos="W",
+                coordinates="figure",
+                fontproperties={"weight": "bold", "size": 18},
+            )
+            ax.set_aspect('equal')
+            fig.tight_layout()
+            pt.show()
+
+    if show_baroclinic_sln:
+        for phase in -np.arange(5) * 2*np.pi/5:
+            fig, ax = plot_setup('Along-shore (km)',
+                         'Cross-shore (km)')
+
+            P = (p1 * np.exp(1j*phase)).real
+            c = ax.contourf(P,
+                            cmap='seismic',
+                            extent=[bbox_barotropic[0], bbox_barotropic[1],
+                                    bbox_barotropic[2], bbox_barotropic[3]],
+                            alpha=0.5,
+                            vmin=-np.max(np.abs(p1)), vmax=np.max(np.abs(p1)),
+                            levels=np.linspace(-np.max(np.abs(p1)),
+                                               np.max(np.abs(p1)),
+                                               21)
+                            )
+            cbar = add_colorbar(c, ax=ax)
+            cbar.ax.tick_params(labelsize=16)
+        
+            U, V = (u1 * np.exp(1j*phase)).real, (v1 * np.exp(1j*phase)).real
+            X, Y = Xg0 * param.L_R *1e-3, Yg0 * param.L_R *1e-3
+            Q = ax.quiver(
+                   X[::40, ::40],
+                   Y[::40, ::40],
+                   U[::40, ::40], V[::40, ::40],
+                   width=0.002,
+                   scale=1,
+                   )
+        
+            ax.quiverkey(
+                Q,
+                .75, .03, #x and y position of key
+                .05, #unit
+                r"$5\,\rm{cm/s}$",
+                labelpos="W",
+                coordinates="figure",
+                fontproperties={"weight": "bold", "size": 18},
+            )
+            ax.set_aspect('equal')
+            fig.tight_layout()
+            pt.show()
+            
+    from barotropicSWEs.Configuration import topography
+    h = bathymetry
+    h1 = param.H_pyc ; h2 = h - h1
+    hx, hy = topography.grad_function(h, dy0, dx0)
+    w0 = - (hx * u0 + hy * v0) # barotropic vertical velocity in BL
+    D = .5 * (p1 * w0.conjugate()).real #barotropic dissipation
+    Jx = .5 * (h * h2/h1) * (p1 * u1.conjugate()).real   # along-shore baroclinic energy flux
+    Jy = .5 * (h * h2/h1) * (p1 * v1.conjugate()).real   # cross-shore baroclinic energy flux
+
+    if show_fluxes:
+        J = np.sqrt(Jx ** 2 + Jy**2)
+        fig, ax = plot_setup('Along-shore (km)',
+                              'Cross-shore (km)')
+        # J_max = np.max(J)
+        c = ax.imshow(J,
+                      cmap='YlOrRd', aspect='equal',
+                      extent=bbox_barotropic,
+                      origin='lower',
+                      vmin=0, vmax=800
+                      )
+        cbar = fig.colorbar(c, ax=ax)
+        cbar.ax.tick_params(labelsize=16)
+        cbar.ax.set_ylabel('Energy Flux ($\\rm{W/m}$)', rotation=270,
+                            fontsize=16, labelpad=20)
+        X, Y = Xg0 * param.L_R *1e-3, Yg0 * param.L_R *1e-3
+        Q = ax.quiver(
+               X[::40, ::40],
+               Y[::40, ::40],
+               1e-4*Jx[::40, ::40], 1e-4*Jy[::40, ::40],
+               width=0.002,
+               scale=1,
+               )
+        ax.quiverkey(
+            Q,
+            .88, .03,
+            .04,
+            r"$400\,\rm{W/m}$",
+            labelpos="W",
+            coordinates="figure",
+            fontproperties={"weight": "bold", "size": 18},
+        )
+        ax.set_aspect('equal')
+        fig.tight_layout()
+        pt.show()
+
+
+    if show_dissipation:
+        fig, ax = plot_setup('Along-shore (km)',
+                              'Cross-shore (km)')
+        # D_max = 1e3 * np.max(D)
+        c = ax.imshow(D*1e3,
+                      cmap='seismic', aspect='equal',
+                      extent=bbox_barotropic,
+                      origin='lower',
+                      vmin=-80, vmax=80
+                      )
+        cbar = fig.colorbar(c, ax=ax)
+        cbar.ax.tick_params(labelsize=16)
+        cbar.ax.set_ylabel('Energy Dissipation ($\\rm{mW/m^2}$)', rotation=270,
+                            fontsize=16, labelpad=20)
+        pt.show()
+
+    D_total = dx0 * dy0 * np.sum(
+        ((D[1:] + D[:-1])[:, 1:] + (D[1:] + D[:-1])[:, :-1])/4)
+    
+    Jx_L = -.5 * dy0 * np.sum(Jx[1:, 0] + Jx[:-1, 0])
+    Jx_R = .5 * dy0 * np.sum(Jx[1:, -1] + Jx[:-1, -1])
+    
+    # pt.plot(y0 * param.L_R * 1e-3, Jx[:, 0])
+    # pt.plot(y0 * param.L_R * 1e-3, Jx[:, -1])
+    # pt.show()
+    Jy_D = .5 * dx0 * np.sum(Jy[-1, 1:] + Jy[-1, :-1])
+    Jy_C = -.5 * dx0 * np.sum(Jy[0, 1:] + Jy[0, :-1])
+    
+    # pt.plot(x0 * param.L_R * 1e-3, Jy[0])
+    # pt.plot(x0 * param.L_R * 1e-3, Jy[-1])
+    # pt.show()
+    
+    print(f"\tOffshore: {Jy_D*1e-6:.1f} MW\n\tOnshore: {Jy_C*1e-6:.1f} MW\
+\n\tRightward: {Jx_R*1e-6:.1f} MW\n\tLeftward: {Jx_L*1e-6:.1f} MW")
+
+    Jx_total = Jx_R + Jx_L
+    Jy_total = Jy_D + Jy_C
+    print(f"Jx = {Jx_total*1e-6:.1f} MW, Jy = {Jy_total*1e-6:.1f} MW", flush=True)
+    print(f"Jx = {Jx_total/200e3:.1f} W/m, Jy = {Jy_total/200e3:.1f} W/m", flush=True)
+    J_total = Jx_total + Jy_total
+    print(f"Total Energy Flux in Box: {J_total*1e-6:.2f} MW", flush=True)
+    print(f"Total Energy Dissipation in Box: {D_total*1e-6:.2f} MW\n\n", flush=True)
+
+    return Jx_R, Jx_L, Jy_D, Jy_C, D_total
 
 if __name__ == "__main__":
     import configure

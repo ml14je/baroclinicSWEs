@@ -1,0 +1,41 @@
+Traceback (most recent call last):
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/Analyses/Model B/parameter_runs.py", line 355, in parameter_run
+    energies[(param.alpha, param.beta)]
+KeyError: (0.18, 0.34)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "fiona/_shim.pyx", line 110, in fiona._shim.gdal_create
+  File "fiona/_err.pyx", line 291, in fiona._err.exc_wrap_pointer
+fiona._err.CPLE_AppDefinedError: Baroclinic/Meshes/Box_Shp/box_shape_(-0.328132205274999,-0.2776503275403837)x(0.328132205274999,0.3786140830096142).shp is not a directory.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/Analyses/Model B/parameter_runs.py", line 463, in <module>
+    parameter_run(
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/Analyses/Model B/parameter_runs.py", line 358, in parameter_run
+    barotropic_solution, baroclinic_solution = startup(
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/Analyses/Model B/parameter_runs.py", line 195, in startup
+    baroclinic_mesh = make_baroclinic_canyon_meshes.mesh_generator(
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/MeshGeneration/make_baroclinic_canyon_meshes.py", line 108, in mesh_generator
+    P, T = box_mesh.main(
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/MeshGeneration/box_mesh.py", line 97, in main
+    create_shoreline_geometry(x0, xN, y0 - eps, y0, name=fname)
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/MeshGeneration/box_mesh.py", line 20, in create_shoreline_geometry
+    gpd.GeoDataFrame(
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/geopandas/geodataframe.py", line 1114, in to_file
+    _to_file(self, filename, driver, schema, index, **kwargs)
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/geopandas/io/file.py", line 393, in _to_file
+    with fiona.open(
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/fiona/env.py", line 408, in wrapper
+    return f(*args, **kwargs)
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/fiona/__init__.py", line 280, in open
+    c = Collection(path, mode, crs=crs, driver=driver, schema=this_schema,
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/fiona/collection.py", line 165, in __init__
+    self.session.start(self, **kwargs)
+  File "fiona/ogrext.pyx", line 1010, in fiona.ogrext.WritingSession.start
+  File "fiona/ogrext.pyx", line 1011, in fiona.ogrext.WritingSession.start
+  File "fiona/_shim.pyx", line 114, in fiona._shim.gdal_create
+fiona.errors.DriverError: Baroclinic/Meshes/Box_Shp/box_shape_(-0.328132205274999,-0.2776503275403837)x(0.328132205274999,0.3786140830096142).shp is not a directory.

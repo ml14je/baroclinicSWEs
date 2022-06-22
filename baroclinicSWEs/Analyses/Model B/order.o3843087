@@ -1,0 +1,1656 @@
+## Hosts assigned to job 3843087.1:
+##
+## d11s0b1.arc4.leeds.ac.uk 1 slots
+##
+## Resources granted:
+##
+## h_vmem = 50G (per slot)
+## h_rt   = 47:55:00
+## disk   = 1G (per slot)
+
+
+
+Canyon width: 10.0 km
+	alpha: 0.02, beta: 0.10
+	alpha: 0.04, beta: 0.10
+	alpha: 0.06, beta: 0.10
+	alpha: 0.08, beta: 0.10
+	alpha: 0.10, beta: 0.10
+	alpha: 0.12, beta: 0.10
+	alpha: 0.14, beta: 0.10
+	alpha: 0.16, beta: 0.10
+	alpha: 0.18, beta: 0.10
+	alpha: 0.20, beta: 0.10
+	alpha: 0.22, beta: 0.10
+	alpha: 0.24, beta: 0.10
+	alpha: 0.26, beta: 0.10
+	alpha: 0.28, beta: 0.10
+	alpha: 0.30, beta: 0.10
+	alpha: 0.32, beta: 0.10
+	alpha: 0.34, beta: 0.10
+	alpha: 0.36, beta: 0.10
+	alpha: 0.38, beta: 0.10
+	alpha: 0.40, beta: 0.10
+	alpha: 0.42, beta: 0.10
+	alpha: 0.44, beta: 0.10
+	alpha: 0.46, beta: 0.10
+	alpha: 0.48, beta: 0.10
+	alpha: 0.50, beta: 0.10
+	alpha: 0.52, beta: 0.10
+	alpha: 0.54, beta: 0.10
+	alpha: 0.56, beta: 0.10
+	alpha: 0.58, beta: 0.10
+	alpha: 0.60, beta: 0.10
+	alpha: 0.62, beta: 0.10
+	alpha: 0.64, beta: 0.10
+	alpha: 0.66, beta: 0.10
+	alpha: 0.68, beta: 0.10
+	alpha: 0.70, beta: 0.10
+	alpha: 0.72, beta: 0.10
+	alpha: 0.74, beta: 0.10
+	alpha: 0.76, beta: 0.10
+	alpha: 0.78, beta: 0.10
+	alpha: 0.80, beta: 0.10
+	alpha: 0.82, beta: 0.10
+	alpha: 0.84, beta: 0.10
+	alpha: 0.86, beta: 0.10
+	alpha: 0.88, beta: 0.10
+	alpha: 0.90, beta: 0.10
+	alpha: 0.92, beta: 0.10
+	alpha: 0.94, beta: 0.10
+	alpha: 0.96, beta: 0.10
+	alpha: 0.98, beta: 0.10
+	alpha: 1.00, beta: 0.10
+	alpha: 0.02, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.02_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 72.6 MW
+	Onshore: 45.1 MW
+	Rightward: 3.6 MW
+	Leftward: -0.5 MW
+Jx = 3.2 MW, Jy = 117.7 MW
+Jx = 15.8 W/m, Jy = 588.4 W/m
+Total Energy Flux in Box: 120.83 MW
+Total Energy Dissipation in Box: 117.04 MW
+
+
+	alpha: 0.04, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Solving BVP using spsolve
+	Offshore: 72.4 MW
+	Onshore: 45.0 MW
+	Rightward: 3.6 MW
+	Leftward: -0.5 MW
+Jx = 3.1 MW, Jy = 117.5 MW
+Jx = 15.6 W/m, Jy = 587.3 W/m
+Total Energy Flux in Box: 120.58 MW
+Total Energy Dissipation in Box: 116.85 MW
+
+
+	alpha: 0.06, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.06_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 72.3 MW
+	Onshore: 44.9 MW
+	Rightward: 3.6 MW
+	Leftward: -0.5 MW
+Jx = 3.1 MW, Jy = 117.3 MW
+Jx = 15.4 W/m, Jy = 586.4 W/m
+Total Energy Flux in Box: 120.36 MW
+Total Energy Dissipation in Box: 116.67 MW
+
+
+	alpha: 0.08, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Solving BVP using spsolve
+	Offshore: 72.3 MW
+	Onshore: 44.9 MW
+	Rightward: 3.5 MW
+	Leftward: -0.5 MW
+Jx = 3.0 MW, Jy = 117.2 MW
+Jx = 15.0 W/m, Jy = 586.2 W/m
+Total Energy Flux in Box: 120.24 MW
+Total Energy Dissipation in Box: 116.54 MW
+
+
+	alpha: 0.10, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.10_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 72.2 MW
+	Onshore: 44.8 MW
+	Rightward: 3.6 MW
+	Leftward: -0.6 MW
+Jx = 3.0 MW, Jy = 117.0 MW
+Jx = 14.9 W/m, Jy = 584.9 W/m
+Total Energy Flux in Box: 119.97 MW
+Total Energy Dissipation in Box: 116.30 MW
+
+
+	alpha: 0.12, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Solving BVP using spsolve
+	Offshore: 72.1 MW
+	Onshore: 44.8 MW
+	Rightward: 3.5 MW
+	Leftward: -0.6 MW
+Jx = 2.9 MW, Jy = 116.9 MW
+Jx = 14.7 W/m, Jy = 584.5 W/m
+Total Energy Flux in Box: 119.84 MW
+Total Energy Dissipation in Box: 116.14 MW
+
+
+	alpha: 0.14, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.14_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.9 MW
+	Onshore: 44.7 MW
+	Rightward: 3.5 MW
+	Leftward: -0.6 MW
+Jx = 2.9 MW, Jy = 116.6 MW
+Jx = 14.7 W/m, Jy = 582.8 W/m
+Total Energy Flux in Box: 119.51 MW
+Total Energy Dissipation in Box: 115.85 MW
+
+
+	alpha: 0.16, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Solving BVP using spsolve
+	Offshore: 71.9 MW
+	Onshore: 44.6 MW
+	Rightward: 3.5 MW
+	Leftward: -0.6 MW
+Jx = 2.9 MW, Jy = 116.5 MW
+Jx = 14.5 W/m, Jy = 582.4 W/m
+Total Energy Flux in Box: 119.38 MW
+Total Energy Dissipation in Box: 115.71 MW
+
+
+	alpha: 0.18, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.18_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.6 MW
+	Onshore: 44.5 MW
+	Rightward: 3.5 MW
+	Leftward: -0.6 MW
+Jx = 2.9 MW, Jy = 116.1 MW
+Jx = 14.4 W/m, Jy = 580.6 W/m
+Total Energy Flux in Box: 118.99 MW
+Total Energy Dissipation in Box: 115.38 MW
+
+
+	alpha: 0.20, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.20_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.4 MW
+	Onshore: 44.4 MW
+	Rightward: 3.5 MW
+	Leftward: -0.6 MW
+Jx = 2.9 MW, Jy = 115.9 MW
+Jx = 14.5 W/m, Jy = 579.3 W/m
+Total Energy Flux in Box: 118.76 MW
+Total Energy Dissipation in Box: 115.16 MW
+
+
+	alpha: 0.22, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.22_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.5 MW
+	Onshore: 44.4 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 115.9 MW
+Jx = 14.1 W/m, Jy = 579.3 W/m
+Total Energy Flux in Box: 118.67 MW
+Total Energy Dissipation in Box: 115.03 MW
+
+
+	alpha: 0.24, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.24_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.3 MW
+	Onshore: 44.3 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 115.6 MW
+Jx = 13.9 W/m, Jy = 577.9 W/m
+Total Energy Flux in Box: 118.37 MW
+Total Energy Dissipation in Box: 114.72 MW
+
+
+	alpha: 0.26, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.26_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.1 MW
+	Onshore: 44.2 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 115.3 MW
+Jx = 13.9 W/m, Jy = 576.7 W/m
+Total Energy Flux in Box: 118.12 MW
+Total Energy Dissipation in Box: 114.52 MW
+
+
+	alpha: 0.28, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.28_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.0 MW
+	Onshore: 44.1 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 115.1 MW
+Jx = 14.0 W/m, Jy = 575.5 W/m
+Total Energy Flux in Box: 117.89 MW
+Total Energy Dissipation in Box: 114.28 MW
+
+
+	alpha: 0.30, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.30_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.8 MW
+	Onshore: 44.0 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 114.9 MW
+Jx = 14.0 W/m, Jy = 574.4 W/m
+Total Energy Flux in Box: 117.68 MW
+Total Energy Dissipation in Box: 114.07 MW
+
+
+	alpha: 0.32, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.32_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.7 MW
+	Onshore: 44.0 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 114.7 MW
+Jx = 13.8 W/m, Jy = 573.7 W/m
+Total Energy Flux in Box: 117.50 MW
+Total Energy Dissipation in Box: 113.85 MW
+
+
+	alpha: 0.34, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.34_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.8 MW
+	Onshore: 43.7 MW
+	Rightward: 3.6 MW
+	Leftward: -0.7 MW
+Jx = 2.9 MW, Jy = 114.5 MW
+Jx = 14.4 W/m, Jy = 572.6 W/m
+Total Energy Flux in Box: 117.39 MW
+Total Energy Dissipation in Box: 113.87 MW
+
+
+	alpha: 0.36, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.36_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.5 MW
+	Onshore: 43.8 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 114.3 MW
+Jx = 14.1 W/m, Jy = 571.4 W/m
+Total Energy Flux in Box: 117.09 MW
+Total Energy Dissipation in Box: 113.48 MW
+
+
+	alpha: 0.38, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.38_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.4 MW
+	Onshore: 43.7 MW
+	Rightward: 3.6 MW
+	Leftward: -0.7 MW
+Jx = 2.9 MW, Jy = 114.2 MW
+Jx = 14.5 W/m, Jy = 570.8 W/m
+Total Energy Flux in Box: 117.06 MW
+Total Energy Dissipation in Box: 113.40 MW
+
+
+	alpha: 0.40, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.40_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.3 MW
+	Onshore: 43.6 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 113.9 MW
+Jx = 14.0 W/m, Jy = 569.7 W/m
+Total Energy Flux in Box: 116.73 MW
+Total Energy Dissipation in Box: 113.17 MW
+
+
+	alpha: 0.42, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.42_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.2 MW
+	Onshore: 43.7 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 113.9 MW
+Jx = 14.0 W/m, Jy = 569.4 W/m
+Total Energy Flux in Box: 116.67 MW
+Total Energy Dissipation in Box: 112.97 MW
+
+
+	alpha: 0.44, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.44_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.2 MW
+	Onshore: 43.5 MW
+	Rightward: 3.6 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 113.7 MW
+Jx = 14.2 W/m, Jy = 568.6 W/m
+Total Energy Flux in Box: 116.56 MW
+Total Energy Dissipation in Box: 112.91 MW
+
+
+	alpha: 0.46, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.46_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.0 MW
+	Onshore: 43.5 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 113.5 MW
+Jx = 14.0 W/m, Jy = 567.6 W/m
+Total Energy Flux in Box: 116.33 MW
+Total Energy Dissipation in Box: 112.70 MW
+
+
+	alpha: 0.48, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.48_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.1 MW
+	Onshore: 43.3 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 113.4 MW
+Jx = 14.0 W/m, Jy = 567.0 W/m
+Total Energy Flux in Box: 116.21 MW
+Total Energy Dissipation in Box: 112.64 MW
+
+
+	alpha: 0.50, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.50_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.0 MW
+	Onshore: 43.3 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 113.3 MW
+Jx = 14.2 W/m, Jy = 566.5 W/m
+Total Energy Flux in Box: 116.13 MW
+Total Energy Dissipation in Box: 112.54 MW
+
+
+	alpha: 0.52, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.52_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.0 MW
+	Onshore: 43.2 MW
+	Rightward: 3.6 MW
+	Leftward: -0.7 MW
+Jx = 2.9 MW, Jy = 113.2 MW
+Jx = 14.3 W/m, Jy = 565.9 W/m
+Total Energy Flux in Box: 116.04 MW
+Total Energy Dissipation in Box: 112.45 MW
+
+
+	alpha: 0.54, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.54_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.9 MW
+	Onshore: 43.2 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 113.1 MW
+Jx = 13.8 W/m, Jy = 565.4 W/m
+Total Energy Flux in Box: 115.84 MW
+Total Energy Dissipation in Box: 112.22 MW
+
+
+	alpha: 0.56, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.56_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.8 MW
+	Onshore: 43.1 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 112.9 MW
+Jx = 13.9 W/m, Jy = 564.6 W/m
+Total Energy Flux in Box: 115.70 MW
+Total Energy Dissipation in Box: 112.15 MW
+
+
+	alpha: 0.58, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.58_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.7 MW
+	Onshore: 43.2 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 112.9 MW
+Jx = 14.0 W/m, Jy = 564.4 W/m
+Total Energy Flux in Box: 115.68 MW
+Total Energy Dissipation in Box: 112.04 MW
+
+
+	alpha: 0.60, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.60_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.7 MW
+	Onshore: 43.1 MW
+	Rightward: 3.6 MW
+	Leftward: -0.7 MW
+Jx = 2.9 MW, Jy = 112.8 MW
+Jx = 14.3 W/m, Jy = 564.2 W/m
+Total Energy Flux in Box: 115.72 MW
+Total Energy Dissipation in Box: 112.04 MW
+
+
+	alpha: 0.62, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.62_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.6 MW
+	Onshore: 43.1 MW
+	Rightward: 3.6 MW
+	Leftward: -0.7 MW
+Jx = 2.9 MW, Jy = 112.7 MW
+Jx = 14.5 W/m, Jy = 563.3 W/m
+Total Energy Flux in Box: 115.56 MW
+Total Energy Dissipation in Box: 111.91 MW
+
+
+	alpha: 0.64, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.64_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.8 MW
+	Onshore: 42.8 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.8 MW, Jy = 112.6 MW
+Jx = 14.0 W/m, Jy = 563.0 W/m
+Total Energy Flux in Box: 115.42 MW
+Total Energy Dissipation in Box: 111.93 MW
+
+
+	alpha: 0.66, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.66_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.6 MW
+	Onshore: 42.9 MW
+	Rightward: 3.6 MW
+	Leftward: -0.7 MW
+Jx = 2.9 MW, Jy = 112.6 MW
+Jx = 14.4 W/m, Jy = 562.8 W/m
+Total Energy Flux in Box: 115.42 MW
+Total Energy Dissipation in Box: 111.84 MW
+
+
+	alpha: 0.68, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.68_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.4 MW
+	Onshore: 43.0 MW
+	Rightward: 3.6 MW
+	Leftward: -0.7 MW
+Jx = 2.9 MW, Jy = 112.4 MW
+Jx = 14.5 W/m, Jy = 561.8 W/m
+Total Energy Flux in Box: 115.26 MW
+Total Energy Dissipation in Box: 111.66 MW
+
+
+	alpha: 0.70, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.70_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.4 MW
+	Onshore: 43.0 MW
+	Rightward: 3.6 MW
+	Leftward: -0.8 MW
+Jx = 2.8 MW, Jy = 112.4 MW
+Jx = 14.1 W/m, Jy = 562.2 W/m
+Total Energy Flux in Box: 115.26 MW
+Total Energy Dissipation in Box: 111.59 MW
+
+
+	alpha: 0.72, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.72_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.3 MW
+	Onshore: 42.9 MW
+	Rightward: 3.7 MW
+	Leftward: -0.7 MW
+Jx = 3.0 MW, Jy = 112.2 MW
+Jx = 14.9 W/m, Jy = 561.1 W/m
+Total Energy Flux in Box: 115.21 MW
+Total Energy Dissipation in Box: 111.61 MW
+
+
+	alpha: 0.74, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.74_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.1 MW
+	Onshore: 43.1 MW
+	Rightward: 3.7 MW
+	Leftward: -0.8 MW
+Jx = 2.9 MW, Jy = 112.1 MW
+Jx = 14.4 W/m, Jy = 560.6 W/m
+Total Energy Flux in Box: 115.02 MW
+Total Energy Dissipation in Box: 111.32 MW
+
+
+	alpha: 0.76, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.76_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.3 MW
+	Onshore: 42.7 MW
+	Rightward: 3.6 MW
+	Leftward: -0.8 MW
+Jx = 2.8 MW, Jy = 112.1 MW
+Jx = 14.1 W/m, Jy = 560.5 W/m
+Total Energy Flux in Box: 114.91 MW
+Total Energy Dissipation in Box: 111.42 MW
+
+
+	alpha: 0.78, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.78_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.2 MW
+	Onshore: 42.8 MW
+	Rightward: 3.7 MW
+	Leftward: -0.8 MW
+Jx = 2.9 MW, Jy = 112.0 MW
+Jx = 14.5 W/m, Jy = 559.9 W/m
+Total Energy Flux in Box: 114.89 MW
+Total Energy Dissipation in Box: 111.41 MW
+
+
+	alpha: 0.80, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.80_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.0 MW
+	Onshore: 43.0 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.7 MW, Jy = 112.0 MW
+Jx = 13.4 W/m, Jy = 560.0 W/m
+Total Energy Flux in Box: 114.68 MW
+Total Energy Dissipation in Box: 111.06 MW
+
+
+	alpha: 0.82, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.82_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.0 MW
+	Onshore: 42.8 MW
+	Rightward: 3.7 MW
+	Leftward: -0.8 MW
+Jx = 2.9 MW, Jy = 111.8 MW
+Jx = 14.6 W/m, Jy = 559.2 W/m
+Total Energy Flux in Box: 114.75 MW
+Total Energy Dissipation in Box: 111.23 MW
+
+
+	alpha: 0.84, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.84_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.1 MW
+	Onshore: 42.9 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.6 MW, Jy = 112.0 MW
+Jx = 13.1 W/m, Jy = 560.1 W/m
+Total Energy Flux in Box: 114.63 MW
+Total Energy Dissipation in Box: 110.97 MW
+
+
+	alpha: 0.86, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.86_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.0 MW
+	Onshore: 42.9 MW
+	Rightward: 3.6 MW
+	Leftward: -0.8 MW
+Jx = 2.8 MW, Jy = 111.9 MW
+Jx = 14.0 W/m, Jy = 559.3 W/m
+Total Energy Flux in Box: 114.66 MW
+Total Energy Dissipation in Box: 111.09 MW
+
+
+	alpha: 0.88, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.88_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.1 MW
+	Onshore: 42.7 MW
+	Rightward: 3.7 MW
+	Leftward: -0.8 MW
+Jx = 3.0 MW, Jy = 111.8 MW
+Jx = 14.8 W/m, Jy = 558.9 W/m
+Total Energy Flux in Box: 114.73 MW
+Total Energy Dissipation in Box: 111.29 MW
+
+
+	alpha: 0.90, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.90_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.0 MW
+	Onshore: 42.8 MW
+	Rightward: 3.7 MW
+	Leftward: -0.8 MW
+Jx = 2.9 MW, Jy = 111.8 MW
+Jx = 14.6 W/m, Jy = 558.9 W/m
+Total Energy Flux in Box: 114.71 MW
+Total Energy Dissipation in Box: 111.19 MW
+
+
+	alpha: 0.92, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.92_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.1 MW
+	Onshore: 42.6 MW
+	Rightward: 3.8 MW
+	Leftward: -0.8 MW
+Jx = 3.0 MW, Jy = 111.7 MW
+Jx = 15.1 W/m, Jy = 558.5 W/m
+Total Energy Flux in Box: 114.73 MW
+Total Energy Dissipation in Box: 111.37 MW
+
+
+	alpha: 0.94, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.94_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 68.6 MW
+	Onshore: 43.1 MW
+	Rightward: 3.6 MW
+	Leftward: -0.9 MW
+Jx = 2.7 MW, Jy = 111.8 MW
+Jx = 13.7 W/m, Jy = 558.8 W/m
+Total Energy Flux in Box: 114.49 MW
+Total Energy Dissipation in Box: 110.69 MW
+
+
+	alpha: 0.96, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.96_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 68.4 MW
+	Onshore: 43.2 MW
+	Rightward: 3.7 MW
+	Leftward: -0.9 MW
+Jx = 2.8 MW, Jy = 111.6 MW
+Jx = 14.1 W/m, Jy = 558.1 W/m
+Total Energy Flux in Box: 114.43 MW
+Total Energy Dissipation in Box: 110.59 MW
+
+
+	alpha: 0.98, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.98_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.0 MW
+	Onshore: 42.7 MW
+	Rightward: 3.8 MW
+	Leftward: -0.8 MW
+Jx = 3.1 MW, Jy = 111.7 MW
+Jx = 15.3 W/m, Jy = 558.4 W/m
+Total Energy Flux in Box: 114.74 MW
+Total Energy Dissipation in Box: 111.30 MW
+
+
+	alpha: 1.00, beta: 0.12
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=1.00_beta=0.12_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 68.8 MW
+	Onshore: 42.9 MW
+	Rightward: 3.8 MW
+	Leftward: -0.8 MW
+Jx = 3.0 MW, Jy = 111.7 MW
+Jx = 14.9 W/m, Jy = 558.7 W/m
+Total Energy Flux in Box: 114.72 MW
+Total Energy Dissipation in Box: 111.12 MW
+
+
+	alpha: 0.02, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.02_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 72.6 MW
+	Onshore: 45.1 MW
+	Rightward: 3.6 MW
+	Leftward: -0.5 MW
+Jx = 3.1 MW, Jy = 117.6 MW
+Jx = 15.6 W/m, Jy = 588.2 W/m
+Total Energy Flux in Box: 120.75 MW
+Total Energy Dissipation in Box: 116.98 MW
+
+
+	alpha: 0.04, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.04_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 72.6 MW
+	Onshore: 45.1 MW
+	Rightward: 3.6 MW
+	Leftward: -0.5 MW
+Jx = 3.0 MW, Jy = 117.6 MW
+Jx = 15.2 W/m, Jy = 588.1 W/m
+Total Energy Flux in Box: 120.66 MW
+Total Energy Dissipation in Box: 116.86 MW
+
+
+	alpha: 0.06, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.06_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 72.2 MW
+	Onshore: 44.9 MW
+	Rightward: 3.6 MW
+	Leftward: -0.5 MW
+Jx = 3.0 MW, Jy = 117.1 MW
+Jx = 15.1 W/m, Jy = 585.5 W/m
+Total Energy Flux in Box: 120.12 MW
+Total Energy Dissipation in Box: 116.48 MW
+
+
+	alpha: 0.08, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.08_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 72.3 MW
+	Onshore: 44.9 MW
+	Rightward: 3.5 MW
+	Leftward: -0.6 MW
+Jx = 2.9 MW, Jy = 117.1 MW
+Jx = 14.6 W/m, Jy = 585.7 W/m
+Total Energy Flux in Box: 120.06 MW
+Total Energy Dissipation in Box: 116.35 MW
+
+
+	alpha: 0.10, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.10_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 72.1 MW
+	Onshore: 44.7 MW
+	Rightward: 3.5 MW
+	Leftward: -0.6 MW
+Jx = 2.9 MW, Jy = 116.8 MW
+Jx = 14.4 W/m, Jy = 583.9 W/m
+Total Energy Flux in Box: 119.66 MW
+Total Energy Dissipation in Box: 116.03 MW
+
+
+	alpha: 0.12, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.12_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.9 MW
+	Onshore: 44.6 MW
+	Rightward: 3.4 MW
+	Leftward: -0.6 MW
+Jx = 2.8 MW, Jy = 116.6 MW
+Jx = 14.2 W/m, Jy = 582.9 W/m
+Total Energy Flux in Box: 119.41 MW
+Total Energy Dissipation in Box: 115.78 MW
+
+
+	alpha: 0.14, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.14_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.8 MW
+	Onshore: 44.6 MW
+	Rightward: 3.4 MW
+	Leftward: -0.6 MW
+Jx = 2.8 MW, Jy = 116.4 MW
+Jx = 13.9 W/m, Jy = 582.0 W/m
+Total Energy Flux in Box: 119.19 MW
+Total Energy Dissipation in Box: 115.55 MW
+
+
+	alpha: 0.16, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.16_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.7 MW
+	Onshore: 44.4 MW
+	Rightward: 3.4 MW
+	Leftward: -0.6 MW
+Jx = 2.8 MW, Jy = 116.1 MW
+Jx = 13.8 W/m, Jy = 580.5 W/m
+Total Energy Flux in Box: 118.85 MW
+Total Energy Dissipation in Box: 115.23 MW
+
+
+	alpha: 0.18, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.18_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.5 MW
+	Onshore: 44.3 MW
+	Rightward: 3.4 MW
+	Leftward: -0.7 MW
+Jx = 2.7 MW, Jy = 115.9 MW
+Jx = 13.4 W/m, Jy = 579.3 W/m
+Total Energy Flux in Box: 118.54 MW
+Total Energy Dissipation in Box: 114.95 MW
+
+
+	alpha: 0.20, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.20_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.4 MW
+	Onshore: 44.2 MW
+	Rightward: 3.4 MW
+	Leftward: -0.7 MW
+Jx = 2.7 MW, Jy = 115.6 MW
+Jx = 13.4 W/m, Jy = 578.0 W/m
+Total Energy Flux in Box: 118.28 MW
+Total Energy Dissipation in Box: 114.70 MW
+
+
+	alpha: 0.22, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.22_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.1 MW
+	Onshore: 44.1 MW
+	Rightward: 3.4 MW
+	Leftward: -0.7 MW
+Jx = 2.7 MW, Jy = 115.3 MW
+Jx = 13.7 W/m, Jy = 576.3 W/m
+Total Energy Flux in Box: 117.99 MW
+Total Energy Dissipation in Box: 114.38 MW
+
+
+	alpha: 0.24, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.24_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 71.0 MW
+	Onshore: 44.1 MW
+	Rightward: 3.3 MW
+	Leftward: -0.7 MW
+Jx = 2.6 MW, Jy = 115.0 MW
+Jx = 13.0 W/m, Jy = 575.2 W/m
+Total Energy Flux in Box: 117.65 MW
+Total Energy Dissipation in Box: 114.04 MW
+
+
+	alpha: 0.26, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.26_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.9 MW
+	Onshore: 43.9 MW
+	Rightward: 3.3 MW
+	Leftward: -0.7 MW
+Jx = 2.6 MW, Jy = 114.8 MW
+Jx = 13.0 W/m, Jy = 574.0 W/m
+Total Energy Flux in Box: 117.41 MW
+Total Energy Dissipation in Box: 113.83 MW
+
+
+	alpha: 0.28, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.28_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.6 MW
+	Onshore: 43.9 MW
+	Rightward: 3.4 MW
+	Leftward: -0.7 MW
+Jx = 2.6 MW, Jy = 114.5 MW
+Jx = 13.1 W/m, Jy = 572.4 W/m
+Total Energy Flux in Box: 117.11 MW
+Total Energy Dissipation in Box: 113.50 MW
+
+
+	alpha: 0.30, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.30_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.5 MW
+	Onshore: 43.8 MW
+	Rightward: 3.3 MW
+	Leftward: -0.7 MW
+Jx = 2.6 MW, Jy = 114.2 MW
+Jx = 13.0 W/m, Jy = 571.1 W/m
+Total Energy Flux in Box: 116.82 MW
+Total Energy Dissipation in Box: 113.21 MW
+
+
+	alpha: 0.32, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.32_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.3 MW
+	Onshore: 43.7 MW
+	Rightward: 3.3 MW
+	Leftward: -0.8 MW
+Jx = 2.6 MW, Jy = 114.0 MW
+Jx = 13.0 W/m, Jy = 570.2 W/m
+Total Energy Flux in Box: 116.63 MW
+Total Energy Dissipation in Box: 112.98 MW
+
+
+	alpha: 0.34, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.34_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.2 MW
+	Onshore: 43.5 MW
+	Rightward: 3.4 MW
+	Leftward: -0.7 MW
+Jx = 2.7 MW, Jy = 113.7 MW
+Jx = 13.3 W/m, Jy = 568.5 W/m
+Total Energy Flux in Box: 116.36 MW
+Total Energy Dissipation in Box: 112.79 MW
+
+
+	alpha: 0.36, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.36_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 70.1 MW
+	Onshore: 43.4 MW
+	Rightward: 3.4 MW
+	Leftward: -0.8 MW
+Jx = 2.6 MW, Jy = 113.5 MW
+Jx = 13.1 W/m, Jy = 567.5 W/m
+Total Energy Flux in Box: 116.13 MW
+Total Energy Dissipation in Box: 112.53 MW
+
+
+	alpha: 0.38, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.38_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.8 MW
+	Onshore: 43.4 MW
+	Rightward: 3.3 MW
+	Leftward: -0.8 MW
+Jx = 2.5 MW, Jy = 113.2 MW
+Jx = 12.7 W/m, Jy = 566.1 W/m
+Total Energy Flux in Box: 115.76 MW
+Total Energy Dissipation in Box: 112.14 MW
+
+
+	alpha: 0.40, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.40_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.8 MW
+	Onshore: 43.2 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.7 MW, Jy = 113.0 MW
+Jx = 13.5 W/m, Jy = 565.0 W/m
+Total Energy Flux in Box: 115.72 MW
+Total Energy Dissipation in Box: 112.07 MW
+
+
+	alpha: 0.42, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.42_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.7 MW
+	Onshore: 43.1 MW
+	Rightward: 3.4 MW
+	Leftward: -0.8 MW
+Jx = 2.6 MW, Jy = 112.8 MW
+Jx = 13.2 W/m, Jy = 563.9 W/m
+Total Energy Flux in Box: 115.41 MW
+Total Energy Dissipation in Box: 111.82 MW
+
+
+	alpha: 0.44, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.44_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.6 MW
+	Onshore: 43.0 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.7 MW, Jy = 112.6 MW
+Jx = 13.5 W/m, Jy = 563.1 W/m
+Total Energy Flux in Box: 115.32 MW
+Total Energy Dissipation in Box: 111.68 MW
+
+
+	alpha: 0.46, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.46_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.4 MW
+	Onshore: 42.9 MW
+	Rightward: 3.4 MW
+	Leftward: -0.8 MW
+Jx = 2.6 MW, Jy = 112.4 MW
+Jx = 13.0 W/m, Jy = 562.0 W/m
+Total Energy Flux in Box: 114.99 MW
+Total Energy Dissipation in Box: 111.38 MW
+
+
+	alpha: 0.48, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.48_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.3 MW
+	Onshore: 43.0 MW
+	Rightward: 3.4 MW
+	Leftward: -0.8 MW
+Jx = 2.7 MW, Jy = 112.2 MW
+Jx = 13.3 W/m, Jy = 561.2 W/m
+Total Energy Flux in Box: 114.91 MW
+Total Energy Dissipation in Box: 111.19 MW
+
+
+	alpha: 0.50, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.50_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.4 MW
+	Onshore: 42.6 MW
+	Rightward: 3.5 MW
+	Leftward: -0.7 MW
+Jx = 2.7 MW, Jy = 112.0 MW
+Jx = 13.7 W/m, Jy = 560.0 W/m
+Total Energy Flux in Box: 114.74 MW
+Total Energy Dissipation in Box: 111.19 MW
+
+
+	alpha: 0.52, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.52_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.2 MW
+	Onshore: 42.7 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.7 MW, Jy = 111.9 MW
+Jx = 13.4 W/m, Jy = 559.4 W/m
+Total Energy Flux in Box: 114.57 MW
+Total Energy Dissipation in Box: 110.95 MW
+
+
+	alpha: 0.54, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.54_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.3 MW
+	Onshore: 42.4 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.7 MW, Jy = 111.7 MW
+Jx = 13.5 W/m, Jy = 558.4 W/m
+Total Energy Flux in Box: 114.38 MW
+Total Energy Dissipation in Box: 110.91 MW
+
+
+	alpha: 0.56, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.56_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.2 MW
+	Onshore: 42.4 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.7 MW, Jy = 111.6 MW
+Jx = 13.5 W/m, Jy = 557.9 W/m
+Total Energy Flux in Box: 114.28 MW
+Total Energy Dissipation in Box: 110.75 MW
+
+
+	alpha: 0.58, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.58_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.0 MW
+	Onshore: 42.3 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.7 MW, Jy = 111.3 MW
+Jx = 13.5 W/m, Jy = 556.7 W/m
+Total Energy Flux in Box: 114.04 MW
+Total Energy Dissipation in Box: 110.56 MW
+
+
+	alpha: 0.60, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.60_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.0 MW
+	Onshore: 42.3 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.7 MW, Jy = 111.3 MW
+Jx = 13.7 W/m, Jy = 556.5 W/m
+Total Energy Flux in Box: 114.04 MW
+Total Energy Dissipation in Box: 110.50 MW
+
+
+	alpha: 0.62, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.62_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 69.0 MW
+	Onshore: 42.1 MW
+	Rightward: 3.4 MW
+	Leftward: -0.8 MW
+Jx = 2.6 MW, Jy = 111.1 MW
+Jx = 12.9 W/m, Jy = 555.4 W/m
+Total Energy Flux in Box: 113.66 MW
+Total Energy Dissipation in Box: 110.27 MW
+
+
+	alpha: 0.64, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.64_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 68.7 MW
+	Onshore: 42.3 MW
+	Rightward: 3.4 MW
+	Leftward: -0.8 MW
+Jx = 2.6 MW, Jy = 111.0 MW
+Jx = 13.0 W/m, Jy = 555.2 W/m
+Total Energy Flux in Box: 113.62 MW
+Total Energy Dissipation in Box: 110.07 MW
+
+
+	alpha: 0.66, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.66_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 68.7 MW
+	Onshore: 42.1 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.7 MW, Jy = 110.9 MW
+Jx = 13.4 W/m, Jy = 554.3 W/m
+Total Energy Flux in Box: 113.55 MW
+Total Energy Dissipation in Box: 110.09 MW
+
+
+	alpha: 0.68, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.68_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 68.6 MW
+	Onshore: 42.1 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.7 MW, Jy = 110.7 MW
+Jx = 13.6 W/m, Jy = 553.6 W/m
+Total Energy Flux in Box: 113.44 MW
+Total Energy Dissipation in Box: 109.94 MW
+
+
+	alpha: 0.70, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.70_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 68.6 MW
+	Onshore: 42.0 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.7 MW, Jy = 110.7 MW
+Jx = 13.5 W/m, Jy = 553.3 W/m
+Total Energy Flux in Box: 113.36 MW
+Total Energy Dissipation in Box: 109.93 MW
+
+
+	alpha: 0.72, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.72_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 68.5 MW
+	Onshore: 42.0 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.7 MW, Jy = 110.6 MW
+Jx = 13.7 W/m, Jy = 552.8 W/m
+Total Energy Flux in Box: 113.30 MW
+Total Energy Dissipation in Box: 109.84 MW
+
+
+	alpha: 0.74, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.74_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 68.3 MW
+	Onshore: 42.0 MW
+	Rightward: 3.6 MW
+	Leftward: -0.8 MW
+Jx = 2.8 MW, Jy = 110.3 MW
+Jx = 14.0 W/m, Jy = 551.7 W/m
+Total Energy Flux in Box: 113.14 MW
+Total Energy Dissipation in Box: 109.70 MW
+
+
+	alpha: 0.76, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.76_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 68.2 MW
+	Onshore: 42.1 MW
+	Rightward: 3.5 MW
+	Leftward: -0.8 MW
+Jx = 2.6 MW, Jy = 110.4 MW
+Jx = 13.2 W/m, Jy = 551.8 W/m
+Total Energy Flux in Box: 113.00 MW
+Total Energy Dissipation in Box: 109.47 MW
+
+
+	alpha: 0.78, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.78_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 68.0 MW
+	Onshore: 42.2 MW
+	Rightward: 3.6 MW
+	Leftward: -0.8 MW
+Jx = 2.8 MW, Jy = 110.2 MW
+Jx = 13.9 W/m, Jy = 550.8 W/m
+Total Energy Flux in Box: 112.93 MW
+Total Energy Dissipation in Box: 109.38 MW
+
+
+	alpha: 0.80, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.80_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 68.2 MW
+	Onshore: 42.0 MW
+	Rightward: 3.4 MW
+	Leftward: -0.9 MW
+Jx = 2.6 MW, Jy = 110.3 MW
+Jx = 12.8 W/m, Jy = 551.3 W/m
+Total Energy Flux in Box: 112.81 MW
+Total Energy Dissipation in Box: 109.30 MW
+
+
+	alpha: 0.82, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.82_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 67.9 MW
+	Onshore: 42.2 MW
+	Rightward: 3.5 MW
+	Leftward: -0.9 MW
+Jx = 2.7 MW, Jy = 110.1 MW
+Jx = 13.3 W/m, Jy = 550.4 W/m
+Total Energy Flux in Box: 112.73 MW
+Total Energy Dissipation in Box: 109.15 MW
+
+
+	alpha: 0.84, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.84_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 67.9 MW
+	Onshore: 42.1 MW
+	Rightward: 3.6 MW
+	Leftward: -0.9 MW
+Jx = 2.7 MW, Jy = 110.0 MW
+Jx = 13.7 W/m, Jy = 550.2 W/m
+Total Energy Flux in Box: 112.78 MW
+Total Energy Dissipation in Box: 109.23 MW
+
+
+	alpha: 0.86, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.86_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 67.9 MW
+	Onshore: 42.1 MW
+	Rightward: 3.5 MW
+	Leftward: -0.9 MW
+Jx = 2.6 MW, Jy = 110.0 MW
+Jx = 13.1 W/m, Jy = 550.1 W/m
+Total Energy Flux in Box: 112.62 MW
+Total Energy Dissipation in Box: 109.05 MW
+
+
+	alpha: 0.88, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.88_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 67.7 MW
+	Onshore: 42.2 MW
+	Rightward: 3.5 MW
+	Leftward: -0.9 MW
+Jx = 2.7 MW, Jy = 110.0 MW
+Jx = 13.3 W/m, Jy = 549.8 W/m
+Total Energy Flux in Box: 112.61 MW
+Total Energy Dissipation in Box: 108.96 MW
+
+
+	alpha: 0.90, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.90_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 67.5 MW
+	Onshore: 42.5 MW
+	Rightward: 3.5 MW
+	Leftward: -0.9 MW
+Jx = 2.6 MW, Jy = 110.0 MW
+Jx = 13.0 W/m, Jy = 549.8 W/m
+Total Energy Flux in Box: 112.55 MW
+Total Energy Dissipation in Box: 108.72 MW
+
+
+	alpha: 0.92, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.92_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 67.5 MW
+	Onshore: 42.2 MW
+	Rightward: 3.7 MW
+	Leftward: -0.9 MW
+Jx = 2.8 MW, Jy = 109.7 MW
+Jx = 14.1 W/m, Jy = 548.7 W/m
+Total Energy Flux in Box: 112.55 MW
+Total Energy Dissipation in Box: 108.94 MW
+
+
+	alpha: 0.94, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.94_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 67.7 MW
+	Onshore: 42.1 MW
+	Rightward: 3.7 MW
+	Leftward: -0.9 MW
+Jx = 2.8 MW, Jy = 109.8 MW
+Jx = 14.1 W/m, Jy = 549.1 W/m
+Total Energy Flux in Box: 112.66 MW
+Total Energy Dissipation in Box: 109.13 MW
+
+
+	alpha: 0.96, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.96_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 67.2 MW
+	Onshore: 42.5 MW
+	Rightward: 3.6 MW
+	Leftward: -0.9 MW
+Jx = 2.7 MW, Jy = 109.8 MW
+Jx = 13.5 W/m, Jy = 548.8 W/m
+Total Energy Flux in Box: 112.45 MW
+Total Energy Dissipation in Box: 108.62 MW
+
+
+	alpha: 0.98, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=0.98_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 67.5 MW
+	Onshore: 42.4 MW
+	Rightward: 3.7 MW
+	Leftward: -0.9 MW
+Jx = 2.7 MW, Jy = 109.8 MW
+Jx = 13.7 W/m, Jy = 549.1 W/m
+Total Energy Flux in Box: 112.57 MW
+Total Energy Dissipation in Box: 108.83 MW
+
+
+	alpha: 1.00, beta: 0.14
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[1.26e-03,1.00e-02]_slp=30.0_CanyonWidth=10.0km_alpha=1.00_beta=0.14_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve
+	Offshore: 67.6 MW
+	Onshore: 42.2 MW
+	Rightward: 3.7 MW
+	Leftward: -0.9 MW
+Jx = 2.8 MW, Jy = 109.8 MW
+Jx = 13.9 W/m, Jy = 549.0 W/m
+Total Energy Flux in Box: 112.58 MW
+Total Energy Dissipation in Box: 109.06 MW
+
+
+	alpha: 0.02, beta: 0.16
