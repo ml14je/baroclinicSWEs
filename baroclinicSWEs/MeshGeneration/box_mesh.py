@@ -81,7 +81,7 @@ def main(
             bathymetric_gradient_sizing_function,
             DEM,
         )
-        EPSG = 4326  # EPSG code for WGS84 which is what you want to mesh in
+        EPSG = 4326   # EPSG code for WGS84 which is what you want to mesh in
         # Specify and extent to read in and a minimum mesh size in the unit of the projection
 
         extent = Region(extent=bbox, crs=EPSG)
@@ -159,9 +159,6 @@ def main(
             
         x,y = dem.create_grid()
         edge_length.values[:] = sponge_function(x, y) * h_max + (1-sponge_function(x, y)) * edge_length.values
-        edge_length.build_interpolant()
-        
-        
 
         # Enforce gradation - becomes very unnatural otherwise!
         # Becomes distorted if dx != dy in grid
@@ -192,7 +189,6 @@ def main(
 
         if plot_edgefunc:
             from ppp.Plots import plot_setup, save_plot
-            import matplotlib.pyplot as pt
 
             N = 1001
             X, Y = np.linspace(bbox[0], bbox[1], N), np.linspace(bbox[2], bbox[3], N)
@@ -211,7 +207,6 @@ def main(
                 vmax=1,
             )
             fig.colorbar(c, ax=ax)
-            # pt.show()
             save_plot(fig, ax, "Edge_Sizing_Function", folder_name=folder)
 
         points, cells = generate_mesh(

@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/Analyses/Model B/parameter_runs.py", line 355, in parameter_run
+    energies[(param.alpha, param.beta)]
+KeyError: (0.16, 0.84)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/Analyses/Model B/parameter_runs.py", line 463, in <module>
+    parameter_run(
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/Analyses/Model B/parameter_runs.py", line 358, in parameter_run
+    barotropic_solution, baroclinic_solution = startup(
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/Analyses/Model B/parameter_runs.py", line 195, in startup
+    baroclinic_mesh = make_baroclinic_canyon_meshes.mesh_generator(
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/MeshGeneration/make_baroclinic_canyon_meshes.py", line 108, in mesh_generator
+    P, T = box_mesh.main(
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/MeshGeneration/box_mesh.py", line 243, in main
+    points, cells = load_arrays(file_name, folder_name=folder)
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/ppp/Numpy_Data.py", line 39, in load_arrays
+    loaded = np.load(
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/numpy/lib/npyio.py", line 422, in load
+    ret = NpzFile(fid, own_fid=own_fid, allow_pickle=allow_pickle,
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/numpy/lib/npyio.py", line 178, in __init__
+    _zip = zipfile_factory(fid)
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/numpy/lib/npyio.py", line 101, in zipfile_factory
+    return zipfile.ZipFile(file, *args, **kwargs)
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/zipfile.py", line 1257, in __init__
+    self._RealGetContents()
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/zipfile.py", line 1324, in _RealGetContents
+    raise BadZipFile("File is not a zip file")
+zipfile.BadZipFile: File is not a zip file

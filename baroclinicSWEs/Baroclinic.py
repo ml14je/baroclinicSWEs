@@ -67,10 +67,6 @@ class solver(object):
         ]:
             raise ValueError("Invalid Flux scheme")
 
-        if self.boundary_conditions not in ["SOLID WALL", "OPEN FLOW",
-                                            "MOVING WALL", "SPECIFIED"]:
-            raise ValueError("Invalid Boundary Condition")
-
         else:
             # Schemes as given in Hesthaven & Warburton
             if self.scheme == "CENTRAL":
@@ -87,6 +83,10 @@ class solver(object):
 
             else:  # Alternating flux as given in (Shu, 2002) -certainly (Ambati & Bokhove, 2007)
                 self.α, self.β, self.γ, self.θ = 0.0, 0.0, 0.0, θ
+
+        assert self.boundary_conditions in ["SOLID WALL", "OPEN FLOW",
+                                            "MOVING WALL", "SPECIFIED", "REFLECTING"], \
+            "Invalid Boundary Condition"
 
         if h_func is None:
             self.h_func = np.vectorize(lambda X, Y: self.param.H_D)
@@ -211,24 +211,19 @@ class solver(object):
         self.Un = np.zeros((3 * Nx.shape[0], 1))
 
         if self.boundary_conditions == "SOLID WALL":
-#            if self.rotation and self.scheme not in ['ALTERNATING', 'CENTRAL']:
-                # η+ = η-
-            # Ipη3[mapB, vmapB] = Im[mapB, vmapB]
 
-                # u+ = (ny^2 - nx^2) * -u- - 2 * nx * ny * v- (non-dimensional impermeability)
+            # u+ = (ny^2 - nx^2) * -u- - 2 * nx * ny * v- (non-dimensional impermeability)
             Ipu1[mapB, vmapB] = ((Ny @ Ny - Nx @ Nx) @ Im)[mapB, vmapB]
             Ipu2[mapB, vmapB] = -2 * (Nx @ Ny @ Im)[mapB, vmapB]
 
-                # v+ = (nx^2 - ny^2) * -v- - 2 * nx * ny * u- (non-dimensional impermeability)
+            # v+ = (nx^2 - ny^2) * -v- - 2 * nx * ny * u- (non-dimensional impermeability)
             Ipv2[mapB, vmapB] = ((Nx @ Nx - Ny @ Ny) @ Im)[mapB, vmapB]
             Ipv1[mapB, vmapB] = -2 * (Nx @ Ny @ Im)[mapB, vmapB]
-
-  #          else:                #Case of Ambati & Bokhove to constrain central flux on domain boundary
-  #              raise ValueError
-  #              # η+ = η-
-  #              Ipη3[mapB, vmapB] = Im[mapB, vmapB]
-
-
+            
+        elif self.boundary_conditions == 'REFLECTING':
+            Ipu1[mapB, vmapB] = Im[mapB, vmapB]
+            Ipv2[mapB, vmapB] = Im[mapB, vmapB]
+            Ipη3[mapB, vmapB] = Im[mapB, vmapB]
 
         elif self.boundary_conditions == "OPEN FLOW":
             # [[η]]=0 ==> η+ = η-
@@ -323,7 +318,8 @@ code it yourself haha')
 
     def generate_barotropic_forcing(self,
                                     animate_barotropic_solutions=False,
-                                    animate_barotropic_forcing=False):
+                                    animate_barotropic_forcing=False,
+                                    save=False):
         from ppp.File_Management import dir_assurer, file_exist
         x0, xN, y0, yN = self.param.bboxes[0]
         LR = self.param.L_R * 1e-3
@@ -333,16 +329,13 @@ code it yourself haha')
 
         if not file_exist(f'Baroclinic/Barotropic Forcing/{file_dir}.npz'):
             X1, Y1 = self.X, self.Y
-            Nx, Ny = 100, 1000
+            dx, dy = .5e3/self.param.L_R, .5e3/self.param.L_R
             
             bbox_temp = np.array(self.param.bboxes[1]) * 1e3 /self.param.L_R
             bbox_temp[2] = 0 # y0 = 0 (coastline)
             x0, xN, y0, yN = bbox_temp
-            
-            
-            xg, yg = np.linspace(x0, xN, Nx+1), np.linspace(y0, yN, Ny+1)
-            dx = (xg[-1] - xg[0])/Nx
-            dy = (yg[-1] - yg[0])/Ny
+
+            xg, yg = np.arange(x0, xN+dx, dx), np.arange(y0, yN+dy, dy)
             Xg, Yg = np.meshgrid(xg, yg)
 
             bathymetry = self.h_func(Xg, Yg)
@@ -351,7 +344,7 @@ code it yourself haha')
             from scipy.interpolate import griddata
                     
 
-            Z0 = self.Z0_func(bathymetry) #dimensional
+            # Z0 = self.Z0_func(bathymetry) #dimensional
             Z1 = self.Z1_func(bathymetry) #dimensional
             u = self.barotropic_sols.u(Xg, Yg, 0) # Non-dimensional w.r.t c
             v = self.barotropic_sols.v(Xg, Yg, 0) # Non-dimensional w.r.t c
@@ -419,10 +412,10 @@ code it yourself haha')
                                    (X1, Y1), method="cubic",
                                    fill_value=0)
                 forcing_baroclinic_grid.append(forcing)
-    
-            from ppp.Numpy_Data import save_arrays
-            save_arrays(file_dir, tuple(forcing_baroclinic_grid),
-                        wd="Baroclinic/Barotropic Forcing")
+            if save:
+                from ppp.Numpy_Data import save_arrays
+                save_arrays(file_dir, tuple(forcing_baroclinic_grid),
+                            wd="Baroclinic/Barotropic Forcing")
             
         else:
             from ppp.Numpy_Data import load_arrays
@@ -786,6 +779,8 @@ class plot_solutions(object):
         
         cbar = add_colorbar(self.c)
         cbar.ax.tick_params(labelsize=16)
+        cbar.ax.set_ylabel('Pressure ($\\rm{Pa}$)', rotation=270,
+                            fontsize=16, labelpad=20)
 
         self.Q = self.ax.quiver(
             self.X[::40, ::40],

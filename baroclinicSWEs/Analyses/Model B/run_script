@@ -1,5 +1,5 @@
-for width in 5 10 15 20
+for beta in .05 .1 .15 .2 .25 .3 .35 .45 .5 .55 .6 .65 .7 .75 .8 .85 .9 .95
 do
- qsub order $width
+ qsub order $beta
+ sleep 120
 done
-

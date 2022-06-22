@@ -98,6 +98,8 @@ def lavelle(x, y, param, magnitude=.05, x_padding=.01, y_padding=.01,
 def plot_uniform_friction(param, func, magnitude=.05, x_padding=.005, y_padding=.005,
                   plot_name='', damping_width=200):
     r = magnitude
+    x00, xN0, y00, yN0 = np.array(param.bboxes[0])
+    Lx, Ly = xN0 - x00, yN0 - y00
     x0, xN, y0, yN = np.array(param.bboxes[1])# * 1e3 / param.L_R
     x, y = np.linspace(x0, xN, 101) * 1e3 / param.L_R, np.linspace(y0, yN, 101) * 1e3 / param.L_R
     X, Y = np.meshgrid(x, y)
@@ -126,14 +128,15 @@ def plot_uniform_friction(param, func, magnitude=.05, x_padding=.005, y_padding=
         origin="lower",
     )
 
-    for (x_pad, y_pad) in zip([x_padding, x_padding+damping_width],
-                              [y_padding, y_padding+damping_width]):
+    for (x_pad, y_pad, col) in zip([Lx/2, x_padding, x_padding+damping_width],
+                                 [Ly/2, y_padding, y_padding+damping_width],
+                                 ['black', 'red', 'blue']):
         rect = patches.Rectangle((xc*param.L_R*1e-3-x_pad,
                                   yc*param.L_R*1e-3-y_pad),
                                  2*x_pad,
                                  2*y_pad,
                                  linewidth=3,
-                                 edgecolor='black', facecolor='none')
+                                 edgecolor=col, facecolor='none')
         ax.add_patch(rect)
     ax.set_aspect('equal')
     fig.colorbar(c, ax=ax)
@@ -151,6 +154,8 @@ def plot_uniform_friction(param, func, magnitude=.05, x_padding=.005, y_padding=
 def plot_pretty_good_friction(param, func, magnitude=.05, x_padding=.005, y_padding=.005,
                   plot_name='', damping_width=200):
     r = magnitude
+    x00, xN0, y00, yN0 = np.array(param.bboxes[0])
+    Lx, Ly = xN0 - x00, yN0 - y00
     x0, xN, y0, yN = np.array(param.bboxes[1])# * 1e3 / param.L_R
     x, y = np.linspace(x0, xN, 101) * 1e3 / param.L_R, np.linspace(y0, yN, 101) * 1e3 / param.L_R
     X, Y = np.meshgrid(x, y)
@@ -175,13 +180,14 @@ def plot_pretty_good_friction(param, func, magnitude=.05, x_padding=.005, y_padd
                    y_padding=y_padding * 1e3/param.L_R,
                    yc=yc, D=damping_width)
     
-    from ppp.Plots import plot_setup
+    from ppp.Plots import plot_setup, add_colorbar
     from matplotlib import patches
 
-    for r in [R, Rx, Ry]:
-        fig, ax = plot_setup('Along-shore (km)', 'Cross-shore (km)')
+    for r, plot_name in zip([R, Rx, Ry], ['sponge', 'sponge_x', 'sponge_y']):
+        print(np.array(param.bboxes[1]))
+        fig, ax = plot_setup('Along-shore (km)', 'Cross-shore (km)', scale=.8)
         L_R = param.L_R * 1e-3
-        c = ax.matshow(
+        c = ax.imshow(
             .5 * r,
             cmap="OrRd",
             vmax=1,
@@ -191,17 +197,21 @@ def plot_pretty_good_friction(param, func, magnitude=.05, x_padding=.005, y_padd
             origin="lower",
         )
     
-        for (x_pad, y_pad) in zip([x_padding, x_padding+damping_width],
-                                  [y_padding, y_padding+damping_width]):
-            rect = patches.Rectangle((xc*param.L_R*1e-3-x_pad,
-                                      yc*param.L_R*1e-3-y_pad),
+        for (x_pad, y_pad, col) in zip([Lx/2, x_padding, x_padding+damping_width],
+                                       [Ly/2, y_padding, y_padding+damping_width],
+                                       ['black', 'red', 'blue']):
+            rect = patches.Rectangle((xc*L_R-x_pad,
+                                      yc*L_R-y_pad),
                                      2*x_pad,
                                      2*y_pad,
                                      linewidth=3,
-                                     edgecolor='black', facecolor='none')
+                                     edgecolor=col, facecolor='none')
             ax.add_patch(rect)
         ax.set_aspect('equal')
-        fig.colorbar(c, ax=ax)
+        cbar = add_colorbar(c, ax=ax)
+        cbar.ax.tick_params(labelsize=16)
+        cbar.ax.set_ylabel('Absorption Coefficient ($\\times10^{-4}\\,\\mathrm{s^{-1}}$)', rotation=270,
+                            fontsize=16, labelpad=20)
 
         if plot_name:
             from ppp.Plots import save_plot
@@ -219,11 +229,12 @@ if __name__ == '__main__':
     param = configure.main()
     
     bbox_barotropic = (-100, 100, 0, 200)
-    for padding in [510]:
-        bbox_baroclinic = (bbox_barotropic[0] - 700,
-                           bbox_barotropic[1] + 700,
-                           bbox_barotropic[2] - 700,
-                           bbox_barotropic[3] + 700)
+    L = 550
+    for padding in [350]:
+        bbox_baroclinic = (bbox_barotropic[0] - L,
+                           bbox_barotropic[1] + L,
+                           bbox_barotropic[2] - L,
+                           bbox_barotropic[3] + L)
         print(bbox_baroclinic)
         param.bboxes = [bbox_barotropic, bbox_baroclinic]
 
@@ -232,14 +243,14 @@ if __name__ == '__main__':
                       magnitude=1,
                       x_padding=padding,
                       y_padding=padding,
-                      damping_width=200,
-                      plot_name='') 
+                      damping_width=150,
+                      plot_name='')
         
         plot_pretty_good_friction(param, lavelle,
                       magnitude=1,
                       x_padding=padding,
                       y_padding=padding,
-                      damping_width=200,
+                      damping_width=150,
                       plot_name='')     
     
     

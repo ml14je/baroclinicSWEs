@@ -1,0 +1,19 @@
+## Hosts assigned to job 3844110.1:
+##
+## d8s2b4.arc4.leeds.ac.uk 1 slots
+##
+## Resources granted:
+##
+## h_vmem = 50G (per slot)
+## h_rt   = 47:55:00
+## disk   = 1G (per slot)
+
+
+
+Canyon width: 5.0 km
+	alpha: 0.02, beta: 0.02
+File does not exist, generating data
+Solving BVP using spsolve
+Baroclinic/Meshes/DomainSize=1300x1300km_h=[6.31e-04,1.00e-02]_slp=30.0_CanyonWidth=5.0km_alpha=0.02_beta=0.02_domainpadding=350km_dampingwidth=150km.npz
+creating shoreline
+Solving BVP using spsolve

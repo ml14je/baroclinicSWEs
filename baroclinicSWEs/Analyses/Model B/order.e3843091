@@ -1,0 +1,40 @@
+Traceback (most recent call last):
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/Analyses/Model B/parameter_runs.py", line 355, in parameter_run
+    energies[(param.alpha, param.beta)]
+KeyError: (0.02, 0.32)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "fiona/_shim.pyx", line 83, in fiona._shim.gdal_open_vector
+  File "fiona/_err.pyx", line 291, in fiona._err.exc_wrap_pointer
+fiona._err.CPLE_OpenFailedError: Barotropic/Meshes/Box_Shp/box_shape_(-0.050481877734615224,0.0)x(0.050481877734615224,0.10096375546923045).shp: No such file or directory
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/Analyses/Model B/parameter_runs.py", line 463, in <module>
+    parameter_run(
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/Analyses/Model B/parameter_runs.py", line 358, in parameter_run
+    barotropic_solution, baroclinic_solution = startup(
+  File "/nobackup/ml14je/Packages/baroclinicSWEs/baroclinicSWEs/Analyses/Model B/parameter_runs.py", line 112, in startup
+    barotropic_mesh = make_canyon_meshes.mesh_generator(
+  File "/nobackup/ml14je/Packages/barotropicSWEs/barotropicSWEs/MeshGeneration/make_canyon_meshes.py", line 106, in mesh_generator
+    P, T = uniform_box_mesh.main(
+  File "/nobackup/ml14je/Packages/barotropicSWEs/barotropicSWEs/MeshGeneration/uniform_box_mesh.py", line 122, in main
+    shore = Shoreline(fname, extent_.bbox, h_min,
+  File "/nobackup/ml14je/Packages/oceanmesh2/oceanmesh/geodata.py", line 469, in __init__
+    polys = self._read()
+  File "/nobackup/ml14je/Packages/oceanmesh2/oceanmesh/geodata.py", line 554, in _read
+    s = self.transform_to(gpd.read_file(self.shp), self.crs)
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/geopandas/io/file.py", line 201, in _read_file
+    with reader(path_or_bytes, **kwargs) as features:
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/fiona/env.py", line 408, in wrapper
+    return f(*args, **kwargs)
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/fiona/__init__.py", line 264, in open
+    c = Collection(path, mode, driver=driver, encoding=encoding,
+  File "/home/home02/ml14je/.conda/envs/oceanmesh2/lib/python3.9/site-packages/fiona/collection.py", line 162, in __init__
+    self.session.start(self, **kwargs)
+  File "fiona/ogrext.pyx", line 540, in fiona.ogrext.Session.start
+  File "fiona/_shim.pyx", line 90, in fiona._shim.gdal_open_vector
+fiona.errors.DriverError: Barotropic/Meshes/Box_Shp/box_shape_(-0.050481877734615224,0.0)x(0.050481877734615224,0.10096375546923045).shp: No such file or directory

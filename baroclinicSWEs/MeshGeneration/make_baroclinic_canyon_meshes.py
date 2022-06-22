@@ -31,7 +31,7 @@ def mesh_generator(
     considers the bathymetric gradient, ensuring a certain minimum number of 
     nodes. However, the user is recommended to provide both a minimum and a
     maximum edge size, h_min and h_max respectively.
-    
+    param.
 
     Parameters
     ----------
@@ -84,7 +84,7 @@ h=[{h_min:.2e},{h_max:.2e}]_slp={slope_parameter:.1f}_"
             else:
                 mesh_name += f"CanyonWidth={param.canyon_width:.1f}km_\
 CanyonLength={param.canyon_length:.1f}km_\
-CanyonDepth={param.canyon_depth:.1f}m"
+CanyonDepth={param.canyon_depth:.1f}"
                 
         else:
             if param.alpha < 1e-2 or \
@@ -93,7 +93,10 @@ CanyonDepth={param.canyon_depth:.1f}m"
                         mesh_name += "Slope"
             else:
                 mesh_name += f"CanyonWidth={param.canyon_width:.1f}km_\
-alpha={param.alpha:.2f}_beta={param.beta:.2f}m"
+alpha={param.alpha:.2f}_beta={param.beta:.2f}_\
+domainpadding={param.domain_padding:.0f}km_\
+dampingwidth={param.damping_width:.0f}km\
+"
 
     from ppp.File_Management import dir_assurer
 
@@ -113,7 +116,7 @@ alpha={param.alpha:.2f}_beta={param.beta:.2f}m"
         file_name=mesh_name,
         plot_mesh=plot_mesh,
         save_mesh=save_mesh,
-        verbose=True,
+        verbose=False,
         plot_sdf=False,
         plot_boundary=False,
         max_iter=50,
@@ -146,7 +149,7 @@ def main(bbox, param, h_min, h_max, coastal_lengthscale=.03,
             coastal_lengthscale=λ,
             coastal_shelf_width=LC,
             canyon_intrusion=ΔL,
-            verbose=True,
+            verbose=False,
         )
 
 if __name__ == "__main__":
