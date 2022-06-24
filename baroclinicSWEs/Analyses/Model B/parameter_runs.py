@@ -9,6 +9,7 @@ Created on Sun Aug 22 12:27:53 2021
 
 """
 import numpy as np
+import time
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -102,6 +103,8 @@ dampingwidth={param.damping_width:.0f}km"
 
     
     ### Barotropic Kelvin wave (with or without canyon) ###
+    print(canyon_kelvin)
+    
     if canyon_kelvin:
         h_min = (λ - L0) / 10 if (W < 1e-4 or \
             beta < 1e-2 or \
@@ -175,9 +178,11 @@ dampingwidth={param.damping_width:.0f}km"
         
         file_name += "_SlopeKelvin"
         
-        barotropic_solutions = [u_kelv, v_kelv, p_kelv]
-        
-        
+        class barotropic_solutions:
+            u = u_kelv
+            v = v_kelv
+            p = p_kelv
+
     ### Baroclinic Response ###
     from baroclinicSWEs.Configuration import sponge_layer
     from baroclinicSWEs.MeshGeneration import make_baroclinic_canyon_meshes
@@ -258,7 +263,9 @@ def parameter_run(
     h_min=5e-4,
     h_max=1e-2,
     plot_slope_topography=False,
-    goal='Fluxes'
+    goal='Fluxes',
+    canyon_kelvin=True,
+    plot_transects=False
     ):
     from ppp.File_Management import dir_assurer, file_exist
     import pickle
@@ -289,6 +296,10 @@ def parameter_run(
         alpha_values = [alpha_values]
     
     data_name = f"CanyonWidth={canyon_width:.0f}km_Order={order}"
+    if not canyon_kelvin:
+        data_name += "_unperturbed_barotropic_flow"
+
+    
     folder_name = "Energies"
     dir_assurer(folder_name)
     
@@ -303,7 +314,8 @@ def parameter_run(
     ### No Canyon Solution ###
     try:
         energies['slope']
-        
+    
+    # raise ValueError
     except KeyError:
         print("Slope solution", flush=True)
         barotropic_sols, baroclinic_sols = startup(
@@ -340,7 +352,6 @@ def parameter_run(
     param.canyon_width = canyon_width
     print(f"\n\nCanyon width: {param.canyon_width:.1f} km", flush=True)
     for j, beta in enumerate(beta_values):
-        flag = False
         for i, alpha in enumerate(alpha_values):
             print(f"\talpha: {alpha:.2f}, beta: {beta:.2f}", flush=True)
             param.canyon_depth = param.H_D - (param.H_D - param.H_C) * \
@@ -355,6 +366,7 @@ def parameter_run(
                     energies[(param.alpha, param.beta)]
                     
                 except KeyError:
+                    # print(param.canyon_width, param.alpha, param.beta)
                     barotropic_solution, baroclinic_solution = startup(
                         param,
                         5e-4,
@@ -370,6 +382,7 @@ def parameter_run(
                                           param.domain_padding), #in kilometres
                         damping_width=param.damping_width,
                         save_all=save_all,
+                        canyon_kelvin=canyon_kelvin,
                         verbose=False
                     )
                     
@@ -379,9 +392,25 @@ def parameter_run(
                         baroclinic_solution)
                     
                     energies[(alpha, beta)] = Jx_R, Jx_L, Jy_D, Jy_C, D_total
-                    flag = True
                 
                     del barotropic_solution, baroclinic_solution
+                    
+                    current_time = time.perf_counter()
+                    
+                    if current_time - param.start_time > param.save_duration:
+                        #Try to re-load data before re-saving
+                        if not file_exist(f"{folder_name}/{data_name}.pkl"):
+                            energies2 = {}
+    
+                        else:
+                            with open(f"{folder_name}/{data_name}.pkl", "rb") as inp:
+                                energies2 = pickle.load(inp)
+                        
+                        energies = {**energies, **energies2}
+                        with open(f"{folder_name}/{data_name}.pkl", "wb") as outp:
+                            pickle.dump(energies, outp, pickle.HIGHEST_PROTOCOL)
+                            
+                        param.start_time = current_time #start loop again
                     
             else:
                 barotropic_sols, baroclinic_sols = startup(
@@ -407,53 +436,47 @@ def parameter_run(
                     barotropic_sols,
                     baroclinic_sols,
                     )
-
-        if goal.upper() == 'FLUXES':
-            if flag:
-                #Try to re-load data before re-saving
-                if not file_exist(f"{folder_name}/{data_name}.pkl"):
-                    energies2 = {}
-
-                else:
-                    with open(f"{folder_name}/{data_name}.pkl", "rb") as inp:
-                        energies2 = pickle.load(inp)
+        
+        if plot_transects:
+            try:    
+                from ppp.Plots import plot_setup
+                import matplotlib.pyplot as pt
+                values = [np.array([energies[(alpha, beta)][i] for alpha in \
+                                    alpha_values]) for i in range(5)]
+                    
+                fig, ax = plot_setup(
+                    "$\\alpha$", 'Energy Flux (W/m)',
+                    title=f"Canyon Width: {param.canyon_width:.0f} km, $\\beta$={param.beta:.2f}",
+                    scale=.7)
+                labels = ['Rightward', 'Leftward', 'Oceanward', 'Shoreward', 'Total']
                 
-                energies = {**energies, **energies2}
-                with open(f"{folder_name}/{data_name}.pkl", "wb") as outp:
-                    pickle.dump(energies, outp, pickle.HIGHEST_PROTOCOL)
-             
-            # from ppp.Plots import plot_setup
-            # import matplotlib.pyplot as pt
-            # fig, ax = plot_setup(
-            #     "$\\beta$", 'Energy Flux (W/m)',
-            #     title=f"Canyon Width: {param.canyon_width:.0f} km, $\\alpha$={param.alpha:.2f}",
-            #     scale=.7)
-            # labels = ['Rightward', 'Leftward', 'Oceanward', 'Shoreward']
-            # values = [np.array([energies[(alpha, beta)][i] for beta in \
-            #                     beta_values]) for i in range(4)]
+                alpha_temp = np.insert(alpha_values, 0, 0)
+                for i in range(5):
+                    values_temp = np.insert(values[i], 0, energies["slope"][i])
+                    ax.plot(alpha_temp, values_temp/200e3, 'x-', label=labels[i])
+            
+                ax.legend(fontsize=16)
+                pt.show()
                 
-            # beta_temp = np.insert(beta_values, 0, 0)
-            # for i in range(4):
-            #     values_temp = np.insert(values[i], 0, energies["slope"][i])
-            #     ax.plot(beta_temp, values_temp/200e3, 'x-', label=labels[i])
-    
-            # ax.legend(fontsize=16)
-            # pt.show()
+            except KeyError:
+                continue
+
 
 if __name__ == "__main__":
     from barotropicSWEs.Configuration import configure
     param = configure.main()
+    param.start_time = time.perf_counter()
+    param.save_duration = 60 * 60 # saves every time duration (1 hr)
     param.bbox_dimensional = (-150, 150, 0, 300)
     bbox_barotropic = (-100, 100, 0, 200)
-    alpha_values = np.round(np.linspace(.02, 1, 50), 3)
- 
-    beta_values = np.round(np.linspace(.02, 1, 50), 3)
+    alpha_values = np.round(np.linspace(.01, .1, 10), 3) #change here
+    beta_values = np.round(np.linspace(.01, .1, 10), 3) #change here
+    # param.beta = 0
     beta_values = beta_values[beta_values >= param.beta]
     # param.order = 3 # 3
     # param.canyon_width = 5
     param.domain_padding = 350
     param.damping_width = 150
-    # param.nbr_workers = 3
     X0 = 150
     L_ext = param.domain_padding + param.damping_width
     bbox_baroclinic = (-X0-L_ext, X0+L_ext, 100 - X0-L_ext, 100 + X0+L_ext)
@@ -467,7 +490,9 @@ if __name__ == "__main__":
             beta_values,
             order=param.order,
             numerical_flux="Central",
-            goal='Fluxes'
+            goal='Fluxes',
+            plot_transects=False,
+            canyon_kelvin=False, #change here
             )
     
     else: #Parallel processing

@@ -19,4 +19,4 @@
 #Request some memory per core
 #$ -l h_vmem=55G
 
-python parameter_runs.py --order=3 --canyon_width=20 --nbr_workers=1 --beta=$1
+python parameter_runs.py --order=3 --canyon_width=$1 --nbr_workers=1 --beta=$2
