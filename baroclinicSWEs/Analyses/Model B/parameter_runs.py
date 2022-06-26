@@ -349,10 +349,11 @@ def parameter_run(
             param,
             barotropic_sols,
             baroclinic_sols,
-            show_baroclinic_sln=True,
-            show_barotropic_sln=True,
-            show_dissipation=True,
-            show_fluxes=True
+            # show_baroclinic_sln=True,
+            # show_barotropic_sln=True,
+            # show_dissipation=True,
+            # show_fluxes=True,
+            # save=True
             )
         energies['slope'] = Jx_R, Jx_L, Jy_D, Jy_C, D_total
 
@@ -377,7 +378,7 @@ def parameter_run(
                             energies[(param.alpha, param.beta)][l]
                     
                 except KeyError:
-                    print(param.beta)
+                    # print(param.beta)
                     # if plot_transects:
                     continue
                     barotropic_solution, baroclinic_solution = startup(
@@ -406,11 +407,14 @@ def parameter_run(
                     
                     energies[(alpha, beta)] = Jx_R, Jx_L, Jy_D, Jy_C, D_total
                 
+                    #no need to keep solution objects
                     del barotropic_solution, baroclinic_solution
                     
+                    #current time to see if time to save progress
                     current_time = time.perf_counter()
                     
-                    if current_time - param.start_time > param.save_duration:
+                    if current_time - param.start_time > param.save_duration or \
+                        param.beta == beta_values[-1]:
                         #Try to re-load data before re-saving
                         if not file_exist(f"{folder_name}/{data_name}.pkl"):
                             energies2 = {}
@@ -448,6 +452,12 @@ def parameter_run(
                     param,
                     barotropic_sols,
                     baroclinic_sols,
+                    show_baroclinic_sln=True,
+                    show_dissipation=True,
+                    show_fluxes=True,
+                    frames=1,
+                    nearfield=False,
+                    save=True
                     )
 
         if plot_transects:
@@ -497,7 +507,7 @@ def parameter_run(
                         extend='both')
             cbar = add_colorbar(c)
             cbar.ax.tick_params(labelsize=16)
-            cbar.ax.set_ylabel("Average Energy Flux ($\\rm{W/m^2}$)", rotation=270,
+            cbar.ax.set_ylabel("Average Energy Flux ($\\rm{W/m}$)", rotation=270,
                                 fontsize=16, labelpad=20)
             ax.set_aspect('equal')
             pt.show()
@@ -523,8 +533,22 @@ if __name__ == "__main__":
     bbox_baroclinic = (-X0-L_ext, X0+L_ext, 100 - X0-L_ext, 100 + X0+L_ext)
     param.bboxes = [bbox_barotropic, bbox_baroclinic]
     
-    # import time
-    # for param.canyon_width in [5, 10, 15, 20]:
+    import time
+    for param.canyon_width in [5, 10, 15, 20]:
+        parameter_run(
+            param,
+            param.canyon_width,
+            alpha_values,
+            beta_values,
+            order=param.order,
+            numerical_flux="Central",
+            goal='Fluxes', #'Plot',#
+            plot_transects=False,
+            canyon_kelvin=True, #change here
+            )
+        time.sleep(5)
+
+    # if param.nbr_workers == 1: #Serial processing
     #     parameter_run(
     #         param,
     #         param.canyon_width,
@@ -536,35 +560,21 @@ if __name__ == "__main__":
     #         plot_transects=False,
     #         canyon_kelvin=True, #change here
     #         )
-    #     time.sleep(15)
-
-    if param.nbr_workers == 1: #Serial processing
-        parameter_run(
-            param,
-            param.canyon_width,
-            alpha_values,
-            beta_values,
-            order=param.order,
-            numerical_flux="Central",
-            goal='Fluxes',
-            plot_transects=False,
-            canyon_kelvin=True, #change here
-            )
     
-    else: #Parallel processing
-        from multiprocessing import Pool
-        from functools import partial
+    # else: #Parallel processing
+    #     from multiprocessing import Pool
+    #     from functools import partial
     
-        pool = Pool(processes=param.nbr_workers)
-        iter_func = partial(parameter_run,
-                            param,
-                            param.canyon_width,
-                            alpha_values,
-                            order=param.order,
-                            numerical_flux="Central",
-                            goal='Fluxes'
-                            )
-        pool.map(
-            iter_func, 
-            beta_values
-            )
+    #     pool = Pool(processes=param.nbr_workers)
+    #     iter_func = partial(parameter_run,
+    #                         param,
+    #                         param.canyon_width,
+    #                         alpha_values,
+    #                         order=param.order,
+    #                         numerical_flux="Central",
+    #                         goal='Fluxes'
+    #                         )
+    #     pool.map(
+    #         iter_func, 
+    #         beta_values
+    #         )
