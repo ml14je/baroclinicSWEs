@@ -279,6 +279,13 @@ def parameter_run(
     
     alpha_save = [.2, .5, .8]
     beta_save = [.2, .5, .8]
+    fluxes = {
+        'Rightward': np.zeros((len(alpha_values), len(beta_values))),
+        'Leftward': np.zeros((len(alpha_values), len(beta_values))),
+        'Oceanward': np.zeros((len(alpha_values), len(beta_values))),
+        'Shoreward': np.zeros((len(alpha_values), len(beta_values))),
+        'Total': np.zeros((len(alpha_values), len(beta_values)))
+        }
     if goal.upper() == 'PLOT':
         alpha_values = alpha_save
         beta_values = beta_save
@@ -342,18 +349,20 @@ def parameter_run(
             param,
             barotropic_sols,
             baroclinic_sols,
-            # show_baroclinic_sln=True,
-            # show_barotropic_sln=True,
-            # show_dissipation=True,
-            # show_fluxes=True
+            show_baroclinic_sln=True,
+            show_barotropic_sln=True,
+            show_dissipation=True,
+            show_fluxes=True
             )
         energies['slope'] = Jx_R, Jx_L, Jy_D, Jy_C, D_total
-    
+
     param.canyon_width = canyon_width
+    labels = ['Rightward', 'Leftward', 'Oceanward', 'Shoreward', 'Total']
+    
     print(f"\n\nCanyon width: {param.canyon_width:.1f} km", flush=True)
     for j, beta in enumerate(beta_values):
         for i, alpha in enumerate(alpha_values):
-            print(f"\talpha: {alpha:.2f}, beta: {beta:.2f}", flush=True)
+            # print(f"\talpha: {alpha:.2f}, beta: {beta:.2f}", flush=True)
             param.canyon_depth = param.H_D - (param.H_D - param.H_C) * \
                 np.cos(beta * np.pi/2)**2
             param.canyon_length = (alpha * param.L_C + beta * param.L_S) * 1e-3
@@ -361,12 +370,16 @@ def parameter_run(
             save_all = alpha in alpha_save and beta in beta_save        
             
             if goal.upper() == 'FLUXES':
-                # Slope solutions
+                # Canyon solutions
                 try:
-                    energies[(param.alpha, param.beta)]
+                    for l in range(5):
+                        fluxes[labels[l]][i, j] = \
+                            energies[(param.alpha, param.beta)][l]
                     
                 except KeyError:
-                    # print(param.canyon_width, param.alpha, param.beta)
+                    print(param.beta)
+                    # if plot_transects:
+                    continue
                     barotropic_solution, baroclinic_solution = startup(
                         param,
                         5e-4,
@@ -436,30 +449,59 @@ def parameter_run(
                     barotropic_sols,
                     baroclinic_sols,
                     )
-        
+
         if plot_transects:
             try:    
                 from ppp.Plots import plot_setup
                 import matplotlib.pyplot as pt
-                values = [np.array([energies[(alpha, beta)][i] for alpha in \
-                                    alpha_values]) for i in range(5)]
+                values = [np.array([energies[(alpha, beta)][k] for alpha in \
+                                    alpha_values]) for k in range(5)]
                     
                 fig, ax = plot_setup(
                     "$\\alpha$", 'Energy Flux (W/m)',
                     title=f"Canyon Width: {param.canyon_width:.0f} km, $\\beta$={param.beta:.2f}",
                     scale=.7)
-                labels = ['Rightward', 'Leftward', 'Oceanward', 'Shoreward', 'Total']
-                
+
                 alpha_temp = np.insert(alpha_values, 0, 0)
-                for i in range(5):
-                    values_temp = np.insert(values[i], 0, energies["slope"][i])
-                    ax.plot(alpha_temp, values_temp/200e3, 'x-', label=labels[i])
+                for k in range(5):
+                    values_temp = np.insert(values[k], 0, energies["slope"][k])
+                    ax.plot(alpha_temp, values_temp/200e3, 'x-', label=labels[k])
             
                 ax.legend(fontsize=16)
                 pt.show()
                 
             except KeyError:
                 continue
+            
+    if goal.upper() == 'FLUXES':
+        from ppp.Plots import add_colorbar, plot_setup
+        import matplotlib.pyplot as pt
+    
+        levels_ = [np.linspace(-20, 400, 22)/3]*2 + \
+            [np.linspace(-20, 400, 22)] * 2 + \
+                [np.linspace(-20, 400, 22)*1.5]
+        for k in range(5):
+            fig, ax = plot_setup('$\\alpha$', '$\\beta$', scale=.7,
+                                 title=labels[k])
+            vals_temp = fluxes[labels[k]]
+            vals_temp = np.concatenate(
+                (energies["slope"][k] * np.ones((1, len(alpha_values))), vals_temp)
+                 )
+            vals_temp = np.concatenate(
+                (energies["slope"][k] * np.ones((len(beta_values)+1, 1)), vals_temp),
+                 axis=1)
+            c = ax.contourf(vals_temp /200e3,
+                            extent=[0, alpha_values[-1],
+                                    0, beta_values[-1]],
+                        cmap='inferno', levels=levels_[k],
+                        extend='both')
+            cbar = add_colorbar(c)
+            cbar.ax.tick_params(labelsize=16)
+            cbar.ax.set_ylabel("Average Energy Flux ($\\rm{W/m^2}$)", rotation=270,
+                                fontsize=16, labelpad=20)
+            ax.set_aspect('equal')
+            pt.show()
+        
 
 
 if __name__ == "__main__":
@@ -469,12 +511,11 @@ if __name__ == "__main__":
     param.save_duration = 60 * 60 # saves every time duration (1 hr)
     param.bbox_dimensional = (-150, 150, 0, 300)
     bbox_barotropic = (-100, 100, 0, 200)
-    alpha_values = np.round(np.linspace(.01, .1, 10), 3) #change here
-    beta_values = np.round(np.linspace(.01, .1, 10), 3) #change here
-    # param.beta = 0
+    alpha_values = np.round(np.linspace(.02, 1, 50), 3) #change here
+    beta_values = np.round(np.linspace(.02, 1, 50), 3) #change here
+    param.beta = 0
     beta_values = beta_values[beta_values >= param.beta]
-    # param.order = 3 # 3
-    # param.canyon_width = 5
+    param.order = 3 # 3
     param.domain_padding = 350
     param.damping_width = 150
     X0 = 150
@@ -482,6 +523,21 @@ if __name__ == "__main__":
     bbox_baroclinic = (-X0-L_ext, X0+L_ext, 100 - X0-L_ext, 100 + X0+L_ext)
     param.bboxes = [bbox_barotropic, bbox_baroclinic]
     
+    # import time
+    # for param.canyon_width in [5, 10, 15, 20]:
+    #     parameter_run(
+    #         param,
+    #         param.canyon_width,
+    #         alpha_values,
+    #         beta_values,
+    #         order=param.order,
+    #         numerical_flux="Central",
+    #         goal='Fluxes',
+    #         plot_transects=False,
+    #         canyon_kelvin=True, #change here
+    #         )
+    #     time.sleep(15)
+
     if param.nbr_workers == 1: #Serial processing
         parameter_run(
             param,
@@ -492,7 +548,7 @@ if __name__ == "__main__":
             numerical_flux="Central",
             goal='Fluxes',
             plot_transects=False,
-            canyon_kelvin=False, #change here
+            canyon_kelvin=True, #change here
             )
     
     else: #Parallel processing
