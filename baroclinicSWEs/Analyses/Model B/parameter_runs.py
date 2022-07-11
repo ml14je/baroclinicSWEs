@@ -102,9 +102,7 @@ dampingwidth={param.damping_width:.0f}km"
     h_func_dim = lambda x, y: param.H_D * canyon_topography(x, y)
 
     
-    ### Barotropic Kelvin wave (with or without canyon) ###
-    print(canyon_kelvin)
-    
+    ### Barotropic Kelvin wave (with or without canyon) ###    
     if canyon_kelvin:
         h_min = (λ - L0) / 10 if (W < 1e-4 or \
             beta < 1e-2 or \
@@ -349,11 +347,12 @@ def parameter_run(
             param,
             barotropic_sols,
             baroclinic_sols,
-            # show_baroclinic_sln=True,
+            show_baroclinic_sln=True,
             # show_barotropic_sln=True,
-            # show_dissipation=True,
-            # show_fluxes=True,
-            # save=True
+            show_dissipation=True,
+            show_fluxes=True,
+            nearfield=True,
+            save=True
             )
         energies['slope'] = Jx_R, Jx_L, Jy_D, Jy_C, D_total
 
@@ -374,7 +373,7 @@ def parameter_run(
                 # Canyon solutions
                 try:
                     for l in range(5):
-                        fluxes[labels[l]][i, j] = \
+                        fluxes[labels[l]][j, i] = \
                             energies[(param.alpha, param.beta)][l]
                     
                 except KeyError:
@@ -447,18 +446,19 @@ def parameter_run(
                     save_all=False,
                     animate=False
                 )
-                from baroclinicSWEs.Analyses import postprocess
-                postprocess.post_process(
-                    param,
-                    barotropic_sols,
-                    baroclinic_sols,
-                    show_baroclinic_sln=True,
-                    show_dissipation=True,
-                    show_fluxes=True,
-                    frames=1,
-                    nearfield=False,
-                    save=True
-                    )
+                # from baroclinicSWEs.Analyses import postprocess
+                # postprocess.post_process(
+                #     param,
+                #     barotropic_sols,
+                #     baroclinic_sols,
+                #     # show_baroclinic_sln=True,
+                #     # show_dissipation=True,
+                #     # show_fluxes=True,
+                #     show_phases=True,
+                #     frames=1,
+                #     nearfield=True,
+                #     # save=True
+                #     )
 
         if plot_transects:
             try:    
@@ -484,38 +484,80 @@ def parameter_run(
                 continue
             
     if goal.upper() == 'FLUXES':
-        from ppp.Plots import add_colorbar, plot_setup
+        from ppp.Plots import add_colorbar, plot_setup, save_plot
         import matplotlib.pyplot as pt
+        dir_assurer("Parameter Sweeps")
     
-        levels_ = [np.linspace(-20, 400, 22)/3]*2 + \
-            [np.linspace(-20, 400, 22)] * 2 + \
-                [np.linspace(-20, 400, 22)*1.5]
+        levels_ = [np.linspace(-10, 160, 18)]*2 + \
+            [np.linspace(100, 360, 14)] * 2 + \
+                [np.linspace(70, 130, 13)]
+        beta_values = np.append(np.array([0]), beta_values, 0)
+        A, B = np.meshgrid(alpha_values, beta_values)
+
+        D = np.zeros((51, 50))
         for k in range(5):
-            fig, ax = plot_setup('$\\alpha$', '$\\beta$', scale=.7,
-                                 title=labels[k])
+            fig, ax = plot_setup('$\\alpha$', '$\\beta$', scale=.7)
             vals_temp = fluxes[labels[k]]
+            
             vals_temp = np.concatenate(
-                (energies["slope"][k] * np.ones((1, len(alpha_values))), vals_temp)
-                 )
-            vals_temp = np.concatenate(
-                (energies["slope"][k] * np.ones((len(beta_values)+1, 1)), vals_temp),
-                 axis=1)
-            c = ax.contourf(vals_temp /200e3,
-                            extent=[0, alpha_values[-1],
-                                    0, beta_values[-1]],
-                        cmap='inferno', levels=levels_[k],
+                (energies["slope"][k] * np.ones((1, len(beta_values)-1)), vals_temp),
+                 axis=0)
+            
+            if k < 4:
+                D += vals_temp
+                vals_temp /= 200e3
+                y_lab = "Energy Flux ($\\rm{W/m}$)"
+                
+            else:
+                vals_temp *= 1e-6
+                y_lab = "Tidal dissipation ($\\rm{MW}$)"
+                
+            c = ax.contourf(vals_temp,
+                            extent=[alpha_values[0], alpha_values[-1],
+                                    beta_values[0], beta_values[-1]],
+                        cmap='inferno_r', levels=levels_[k],
                         extend='both')
-            cbar = add_colorbar(c)
+            cbar = add_colorbar(c, ax=ax)
+
+            if k < 2:
+                c2 = ax.contour(A, B, vals_temp, [0],
+                                colors='r')
+                cbar.add_lines(c2)
+
             cbar.ax.tick_params(labelsize=16)
-            cbar.ax.set_ylabel("Average Energy Flux ($\\rm{W/m}$)", rotation=270,
+            cbar.ax.set_ylabel(y_lab, rotation=270,
                                 fontsize=16, labelpad=20)
             ax.set_aspect('equal')
-            pt.show()
+            
+            save_plot(fig, ax,
+                      f"{data_name}_{labels[k]}",
+                      folder_name="Parameter Sweeps")
+            
+        print(f"Maximum difference between dissipation and energyflux:\
+ {100*np.max((vals_temp - D*1e-6)/vals_temp):.2f}%")
+            
+        fig, ax = plot_setup('$\\alpha$', '$\\beta$', scale=.7)
+        c = ax.contourf(D*1e-6,
+                        extent=[0, alpha_values[-1],
+                                0, beta_values[-1]],
+                    cmap='inferno_r', levels=levels_[k],
+                    extend='both')
+        cbar = add_colorbar(c)
+        cbar.ax.tick_params(labelsize=16)
+        cbar.ax.set_ylabel(y_lab, rotation=270,
+                            fontsize=16, labelpad=20)
+        ax.set_aspect('equal')
+        
+        save_plot(fig, ax,
+                  f"{data_name}_{labels[k]}_2",
+                  folder_name="Parameter Sweeps")
         
 
 
 if __name__ == "__main__":
     from barotropicSWEs.Configuration import configure
+    import time
+
     param = configure.main()
     param.start_time = time.perf_counter()
     param.save_duration = 60 * 60 # saves every time duration (1 hr)
@@ -532,9 +574,8 @@ if __name__ == "__main__":
     L_ext = param.domain_padding + param.damping_width
     bbox_baroclinic = (-X0-L_ext, X0+L_ext, 100 - X0-L_ext, 100 + X0+L_ext)
     param.bboxes = [bbox_barotropic, bbox_baroclinic]
-    
-    import time
-    for param.canyon_width in [5, 10, 15, 20]:
+
+    for param.canyon_width in [5, 10, 15, 20]: #[10]:#
         parameter_run(
             param,
             param.canyon_width,
@@ -542,11 +583,10 @@ if __name__ == "__main__":
             beta_values,
             order=param.order,
             numerical_flux="Central",
-            goal='Fluxes', #'Plot',#
+            goal='Plot', #Must be in ['Plot', 'Fluxes']
             plot_transects=False,
             canyon_kelvin=True, #change here
             )
-        time.sleep(5)
 
     # if param.nbr_workers == 1: #Serial processing
     #     parameter_run(

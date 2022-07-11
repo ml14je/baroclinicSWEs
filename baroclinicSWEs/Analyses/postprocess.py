@@ -200,6 +200,7 @@ class animate_solutions2(object):
 def post_process(param, barotropic_slns, baroclinic_slns,
                  NN=1000,
                  show_barotropic_sln=False,
+                 show_phases=False,
                  show_baroclinic_sln=False,
                  show_fluxes=False,
                  show_dissipation=False,
@@ -241,10 +242,16 @@ def post_process(param, barotropic_slns, baroclinic_slns,
     u1 = param.c * Z1 * baroclinic_slns.u(Xg1, Yg1, 0)
     v1 = param.c * Z1 * baroclinic_slns.v(Xg1, Yg1, 0)
     
+    from barotropicSWEs.Configuration import topography
+    h = bathymetry
+    h1 = param.H_pyc ; h2 = h - h1
+    hx, hy = topography.grad_function(h, dy1, dx1)
+    
 
     # Barotropic quantities in BL
     inds = Yg1 >= 0
-    p0, u0, v0 = np.zeros(Xg1.shape), np.zeros(Xg1.shape), np.zeros(Xg1.shape)
+    p0, u0, v0 = np.zeros(Xg1.shape, dtype=complex), \
+        np.zeros(Xg1.shape, dtype=complex), np.zeros(Xg1.shape, dtype=complex)
     p0[inds] = param.ρ_ref * (param.c**2) * barotropic_slns.p(Xg1[inds], Yg1[inds], 0)
     u0[inds] = param.c * barotropic_slns.u(Xg1[inds], Yg1[inds], 0)
     v0[inds] = param.c * barotropic_slns.v(Xg1[inds], Yg1[inds], 0)
@@ -299,6 +306,55 @@ def post_process(param, barotropic_slns, baroclinic_slns,
                 save_plot(fig, ax, name_,
                           folder_name=f"{folder_dir}/Barotropic/Nearfield={nearfield}"
                           )
+                
+    if show_phases:
+        # from ppp.Plots import subplots, set_axis
+        X, Y = Xg1 * param.L_R *1e-3, Yg1 * param.L_R *1e-3
+        levels_ = np.linspace(0, 360, 65)
+        
+        for i, u in enumerate([-hx * u0, -hy * v0, p1]):
+
+            fig, ax = plot_setup('Along-shore (km)',
+                                 'Cross-shore (km)',
+                                 scale=.7)
+            mask = abs(u) < 1e-10
+            u = (np.angle(u) + np.pi) * 360 / (2*np.pi)
+            u[u > 360] = u[u > 360] - 360
+            u[u < 0] = u[u < 0] + 360
+            u[mask] = np.nan
+            
+            im = ax.contourf(u,
+                           extent=bbox1,
+                           levels=levels_,
+                           vmin=0, vmax=360,
+                           origin='lower',
+                           cmap='twilight_shifted')
+
+            cbar = add_colorbar(im,
+                                ax=ax,
+                                ticks=np.linspace(0, 360, 5))
+            cbar.ax.tick_params(labelsize=16)
+            cbar.ax.set_ylabel("Phase (${}^{\\circ}$)", rotation=270,
+                                fontsize=16, labelpad=20)
+            cbar.ax.set_yticks(levels_[::2])
+            cbar.ax.set_yticklabels(['$0$', '$90$', '$180$', '$270$',
+                                      '$360$'])
+                
+            ax.set_aspect('equal')
+            
+        pt.show()
+            
+            
+        # fig.tight_layout()
+        
+        # if not save:
+        #     pt.show()
+            
+        # else:
+        #     dir_assurer(f"{folder_dir}/Barotropic/Nearfield={nearfield}")
+        #     save_plot(fig, ax, name_,
+        #               folder_name=f"{folder_dir}/Barotropic/Nearfield={nearfield}"
+        #               )
 
     if show_baroclinic_sln:
         h1, h2 = param.H_pyc, bathymetry - param.H_pyc
@@ -355,10 +411,16 @@ def post_process(param, barotropic_slns, baroclinic_slns,
                               folder_name=f"{folder_dir}/Baroclinic/Nearfield={nearfield}"
                               )
             
-    from barotropicSWEs.Configuration import topography
-    h = bathymetry
-    h1 = param.H_pyc ; h2 = h - h1
-    hx, hy = topography.grad_function(h, dy1, dx1)
+    
+    
+    # print(v0)
+    # for A in [hx, u0, hy, v0, p1, (v0*p1.conjugate())]:
+    #     pt.imshow(A.real, cmap='seismic',
+    #               origin='lower',
+    #               extent=bbox1)
+    #     pt.show()
+        
+        
     w0 = - (hx * u0 + hy * v0) # barotropic vertical velocity in BL
     D = .5 * (p1 * w0.conjugate()).real #barotropic dissipation
     Jx = .5 * (h * h2/h1) * (p1 * u1.conjugate()).real   # along-shore baroclinic energy flux
@@ -417,7 +479,7 @@ def post_process(param, barotropic_slns, baroclinic_slns,
                       cmap='seismic', aspect='equal',
                       extent=bbox1,
                       origin='lower',
-                      vmin=-80, vmax=80
+                      vmin=-100, vmax=100
                       )
         cbar = add_colorbar(c)
         cbar.ax.tick_params(labelsize=16)
