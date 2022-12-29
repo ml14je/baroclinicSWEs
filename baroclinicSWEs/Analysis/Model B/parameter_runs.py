@@ -503,6 +503,8 @@ def parameter_run(
                 (energies["slope"][k] * np.ones((1, len(beta_values)-1)), vals_temp),
                  axis=0)
             
+            
+            
             if k < 4:
                 D += vals_temp
                 vals_temp /= 200e3
@@ -532,7 +534,6 @@ def parameter_run(
             save_plot(fig, ax,
                       f"{data_name}_{labels[k]}",
                       folder_name="Parameter Sweeps")
-            
         print(f"Maximum difference between dissipation and energyflux:\
  {100*np.max((vals_temp - D*1e-6)/vals_temp):.2f}%")
             
@@ -583,7 +584,7 @@ if __name__ == "__main__":
             beta_values,
             order=param.order,
             numerical_flux="Central",
-            goal='Plot', #Must be in ['Plot', 'Fluxes']
+            goal='Fluxes', #Must be in ['Plot', 'Fluxes']
             plot_transects=False,
             canyon_kelvin=True, #change here
             )
