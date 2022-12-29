@@ -24,7 +24,7 @@ def mesh_generator(
     slope_parameter=.3,
     mesh_gradation=.2,
     verbose=True,
-    model="A"
+    model="B"
 ):
     """
     Generates a 2D mesh of a box defined by the boundary box, bbox. The mesh
