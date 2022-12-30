@@ -1,4 +1,0 @@
-for i in .1 4 500
-do
- echo "my fav numbr is $i"
-done
